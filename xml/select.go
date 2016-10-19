@@ -1,7 +1,6 @@
 package xml
 
 import (
-	"bytes"
 	"fmt"
 
 	"github.com/antchfx/gxpath"
@@ -78,7 +77,7 @@ func (x *xmlNodeNavigator) Value() string {
 		if x.attr != -1 {
 			return x.curr.Attr[x.attr].Value
 		}
-		return InnerText(x.curr)
+		return x.curr.InnerText()
 	case xml.TextNode:
 		return x.curr.Data
 	}
@@ -161,16 +160,4 @@ func (x *xmlNodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
 	x.curr = node.curr
 	x.attr = node.attr
 	return true
-}
-
-// InnerText returns the text between the start and end tags of the object.
-func InnerText(n *xml.Node) string {
-	if n.Type == xml.TextNode || n.Type == xml.CommentNode {
-		return n.Data
-	}
-	var buf bytes.Buffer
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		buf.WriteString(InnerText(child))
-	}
-	return buf.String()
 }
