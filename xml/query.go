@@ -1,4 +1,4 @@
-package xml
+package xmlquery
 
 import (
 	"fmt"
@@ -8,31 +8,27 @@ import (
 	"github.com/antchfx/xml"
 )
 
-// Selector is a XPath selector for XML.
-type Selector struct{}
+// CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
+func CreateXPathNavigator(top *xml.Node) xpath.NodeNavigator {
+	return &xmlNodeNavigator{curr: top, root: top, attr: -1}
+}
 
-func (s *Selector) Find(top *xml.Node, expr string) []*xml.Node {
-	nav := &xmlNodeNavigator{curr: top, root: top, attr: -1}
+func Find(top *xml.Node, expr string) []*xml.Node {
+	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	var elems []*xml.Node
-	t := s.Select(nav, expr)
 	for t.MoveNext() {
 		elems = append(elems, (t.Current().(*xmlNodeNavigator)).curr)
 	}
 	return elems
 }
 
-func (s *Selector) FindOne(top *xml.Node, expr string) *xml.Node {
-	nav := &xmlNodeNavigator{curr: top, root: top, attr: -1}
-	t := s.Select(nav, expr)
+func FindOne(top *xml.Node, expr string) *xml.Node {
+	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	var elem *xml.Node
 	if t.MoveNext() {
 		elem = (t.Current().(*xmlNodeNavigator)).curr
 	}
 	return elem
-}
-
-func (s *Selector) Select(root xpath.NodeNavigator, expr string) *gxpath.NodeIterator {
-	return gxpath.Select(root, expr)
 }
 
 type xmlNodeNavigator struct {

@@ -1,4 +1,4 @@
-package html
+package htmlquery
 
 import (
 	"strings"
@@ -7,32 +7,29 @@ import (
 	"golang.org/x/net/html"
 )
 
-var (
-	doc = loadHtml()
-	sel = &Selector{}
-)
+var doc = loadHtml()
 
 func TestXPathSelect(t *testing.T) {
-	if node := sel.FindOne(doc, "/html/head/title"); node == nil {
+	if node := FindOne(doc, "/html/head/title"); node == nil {
 		t.Fatal("cannot found any node")
 	}
-	if node := sel.FindOne(doc, "//body[@bgcolor]"); node.Attr[0].Val != "ffffff" {
+	if node := FindOne(doc, "//body[@bgcolor]"); node.Attr[0].Val != "ffffff" {
 		t.Fatal("body bgcolor is not #ffffff")
 	}
-	if list := sel.Find(doc, "//a"); len(list) != 2 {
+	if list := Find(doc, "//a"); len(list) != 2 {
 		t.Fatal("count(//a)!=2")
 	}
-	if list := sel.Find(doc, "//body/child::*"); len(list) != 9 { // ignored textnode
+	if list := Find(doc, "//body/child::*"); len(list) != 9 { // ignored textnode
 		t.Fatal("count(//body/child::*)!=9")
 	}
 }
 
 func TestInnerText(t *testing.T) {
-	title := sel.FindOne(doc, "//title")
+	title := FindOne(doc, "//title")
 	if txt := InnerText(title); strings.TrimSpace(txt) != "your title here" {
 		t.Fatalf("InnerText(//title): %s !=your title here", txt)
 	}
-	head := sel.FindOne(doc, "/html/head")
+	head := FindOne(doc, "/html/head")
 	if txt := InnerText(head); strings.TrimSpace(txt) != "your title here" {
 		t.Fatalf("InnerText(/html/head): %s !=your title here", txt)
 	}

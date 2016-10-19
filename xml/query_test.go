@@ -1,4 +1,4 @@
-package xml
+package xmlquery
 
 import (
 	"strings"
@@ -7,22 +7,19 @@ import (
 	"github.com/antchfx/xml"
 )
 
-var (
-	doc = loadXml()
-	sel = &Selector{}
-)
+var doc = loadXml()
 
 func TestXPath(t *testing.T) {
-	if list := sel.Find(doc, "//book"); len(list) != 12 {
+	if list := Find(doc, "//book"); len(list) != 12 {
 		t.Fatal("count(//book) != 12")
 	}
-	if node := sel.FindOne(doc, "//book[@id='bk101']"); node == nil {
+	if node := FindOne(doc, "//book[@id='bk101']"); node == nil {
 		t.Fatal("//book[@id='bk101] is not found")
 	}
-	if node := sel.FindOne(doc, "//book[price>=44.95]"); node == nil {
+	if node := FindOne(doc, "//book[price>=44.95]"); node == nil {
 		t.Fatal("//book/price>=44.95 is not found")
 	}
-	if list := sel.Find(doc, "//book[genre='Fantasy']"); len(list) != 4 {
+	if list := Find(doc, "//book[genre='Fantasy']"); len(list) != 4 {
 		t.Fatal("//book[genre='Fantasy'] items count is not equal 4")
 	}
 }

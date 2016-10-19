@@ -1,4 +1,4 @@
-package html
+package htmlquery
 
 import (
 	"bytes"
@@ -9,31 +9,42 @@ import (
 	"golang.org/x/net/html"
 )
 
-// Selector is a XPath selector for HTML.
-type Selector struct{}
+// CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
+func CreateXPathNavigator(top *html.Node) xpath.NodeNavigator {
+	return &htmlNodeNavigator{curr: top, root: top, attr: -1}
+}
 
-func (s *Selector) Find(top *html.Node, expr string) []*html.Node {
-	nav := &htmlNodeNavigator{curr: top, root: top, attr: -1}
+// Find searches the html.Node that matches by the specified XPath expr.
+func Find(top *html.Node, expr string) []*html.Node {
 	var elems []*html.Node
-	t := s.Select(nav, expr)
+	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	for t.MoveNext() {
 		elems = append(elems, (t.Current().(*htmlNodeNavigator)).curr)
 	}
 	return elems
 }
 
-func (s *Selector) FindOne(top *html.Node, expr string) *html.Node {
-	nav := &htmlNodeNavigator{curr: top, root: top, attr: -1}
-	t := s.Select(nav, expr)
+// FindOne searches the html.Node that matches by the specified XPath expr,
+// and returns first element of matched html.Node.
+func FindOne(top *html.Node, expr string) *html.Node {
 	var elem *html.Node
+	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	if t.MoveNext() {
 		elem = (t.Current().(*htmlNodeNavigator)).curr
 	}
 	return elem
 }
 
-func (s *Selector) Select(root xpath.NodeNavigator, expr string) *gxpath.NodeIterator {
-	return gxpath.Select(root, expr)
+// InnerText returns the text between the start and end tags of the object.
+func InnerText(n *html.Node) string {
+	if n.Type == html.TextNode || n.Type == html.CommentNode {
+		return n.Data
+	}
+	var buf bytes.Buffer
+	for child := n.FirstChild; child != nil; child = child.NextSibling {
+		buf.WriteString(InnerText(child))
+	}
+	return buf.String()
 }
 
 type htmlNodeNavigator struct {
@@ -160,16 +171,4 @@ func (h *htmlNodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
 	h.curr = node.curr
 	h.attr = node.attr
 	return true
-}
-
-// InnerText returns the text between the start and end tags of the object.
-func InnerText(n *html.Node) string {
-	if n.Type == html.TextNode || n.Type == html.CommentNode {
-		return n.Data
-	}
-	var buf bytes.Buffer
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		buf.WriteString(InnerText(child))
-	}
-	return buf.String()
 }
