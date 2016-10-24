@@ -6,6 +6,8 @@ XQuery is a package to extract data from HTML and XML using XPath selectors.
 
 * [XML](https://github.com/antchfx/xml) : The XML parser package.
 
+* [GXPATH](https://github.com/antchfx/gxpath) : The XPath package for Go.
+
 Installing
 ====
 
