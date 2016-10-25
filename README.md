@@ -15,6 +15,10 @@ Installing
 
 #### HTML Usage
 
+Methods: 
+* Find(*html.Node, string) []*html.Node
+* FindOne(*html.Node, string) *html.Node
+
 ```go
 package main
 
@@ -28,12 +32,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	title := htmlquery.FindOne(root, "//title")
-	fmt.Println(fmt.Sprintf("document title: %s", htmlquery.InnerText(title)))
+	node := htmlquery.FindOne(root, "//title")
+	fmt.Println(htmlquery.InnerText(node))
 }
 ```
 
 #### XML Usage
+
+Methods: 
+* Find(*xml.Node, string) []*xml.Node
+* FindOne(*xml.Node, string) *xml.Node
 
 ```go
 package main
@@ -48,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	title := xmlquery.FindOne(root, "//title")
-	fmt.Println(fmt.Sprintf("document title: %s", title.InnerText()))
+	node := xmlquery.FindOne(root, "//title")
+	fmt.Println(node.InnerText())
 }
 ```
