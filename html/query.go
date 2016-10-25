@@ -3,6 +3,7 @@ package htmlquery
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/antchfx/gxpath"
 	"github.com/antchfx/gxpath/xpath"
@@ -44,6 +45,46 @@ func InnerText(n *html.Node) string {
 	for child := n.FirstChild; child != nil; child = child.NextSibling {
 		buf.WriteString(InnerText(child))
 	}
+	return buf.String()
+}
+
+func isSelfClosingTag(t string) bool {
+	switch t {
+	case "area", "hr", "img", "meta", "source", "br", "input":
+		return true
+	default:
+		return false
+	}
+}
+
+func outputXML(buf *bytes.Buffer, n *html.Node) {
+	if n.Type == html.TextNode || n.Type == html.CommentNode {
+		buf.WriteString(strings.TrimSpace(n.Data))
+		return
+	}
+
+	buf.WriteString("<" + n.Data)
+	for _, attr := range n.Attr {
+		buf.WriteString(fmt.Sprintf(` %s="%s"`, attr.Key, attr.Val))
+	}
+	selfClosing := isSelfClosingTag(n.Data)
+	if selfClosing {
+		buf.WriteString("/>")
+	} else {
+		buf.WriteString(">")
+	}
+	for child := n.FirstChild; child != nil; child = child.NextSibling {
+		outputXML(buf, child)
+	}
+	if !selfClosing {
+		buf.WriteString(fmt.Sprintf("</%s>", n.Data))
+	}
+}
+
+// OutputHTML returns the text including tags name.
+func OutputHTML(n *html.Node) string {
+	var buf bytes.Buffer
+	outputXML(&buf, n)
 	return buf.String()
 }
 

@@ -33,6 +33,10 @@ func TestInnerText(t *testing.T) {
 	if txt := InnerText(head); strings.TrimSpace(txt) != "your title here" {
 		t.Fatalf("InnerText(/html/head): %s !=your title here", txt)
 	}
+	img := FindOne(doc, "//img")
+	if OutputHTML(img) != `<img src="clouds.jpg" align="bottom"/>` {
+		t.Fatal(`OutputHTML(img)!='<img src="clouds.jpg" align="bottom"/>'`)
+	}
 }
 
 func loadHtml() *html.Node {
