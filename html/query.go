@@ -36,6 +36,16 @@ func FindOne(top *html.Node, expr string) *html.Node {
 	return elem
 }
 
+// FindEach searches the html.Node and calls functions cb.
+func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
+	t := gxpath.Select(CreateXPathNavigator(top), expr)
+	i := 0
+	if t.MoveNext() {
+		cb(i, (t.Current().(*htmlNodeNavigator)).curr)
+		i++
+	}
+}
+
 // InnerText returns the text between the start and end tags of the object.
 func InnerText(n *html.Node) string {
 	if n.Type == html.TextNode || n.Type == html.CommentNode {

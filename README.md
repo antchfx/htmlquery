@@ -13,11 +13,12 @@ Installing
 
 > go get -u github.com/antchfx/xquery
 
-#### HTML Usage
+#### HTML Query
 
 Methods: 
 * Find(*html.Node, string) []*html.Node
 * FindOne(*html.Node, string) *html.Node
+* FindEach(*html.Node, string, func(int, *html.Node))
 
 ```go
 package main
@@ -37,11 +38,12 @@ func main() {
 }
 ```
 
-#### XML Usage
+#### XML Query
 
 Methods: 
 * Find(*xml.Node, string) []*xml.Node
 * FindOne(*xml.Node, string) *xml.Node
+* FindEach(*xml.Node, string, func(int, *xml.Node))
 
 ```go
 package main
