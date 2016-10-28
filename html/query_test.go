@@ -41,7 +41,7 @@ func TestInnerText(t *testing.T) {
 
 func loadHtml() *html.Node {
 	// http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm
-	var str = `<html>
+	var str = `<!DOCTYPE html><html>
 <head>
 <title>your title here</title>
 </head>

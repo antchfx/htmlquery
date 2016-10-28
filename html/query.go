@@ -116,6 +116,9 @@ func (h *htmlNodeNavigator) NodeType() xpath.NodeType {
 			return xpath.AttributeNode
 		}
 		return xpath.ElementNode
+	case html.DoctypeNode:
+		// ignored <!DOCTYPE HTML> declare and as Root-Node type.
+		return xpath.RootNode
 	}
 	panic(fmt.Sprintf("unknown HTML node type: %v", h.curr.Type))
 }
