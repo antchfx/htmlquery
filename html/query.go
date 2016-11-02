@@ -80,7 +80,7 @@ func InnerText(n *html.Node) string {
 	for child := n.FirstChild; child != nil; child = child.NextSibling {
 		buf.WriteString(InnerText(child))
 	}
-	return buf.String()
+	return strings.TrimSpace(buf.String())
 }
 
 func isSelfClosingTag(t string) bool {
