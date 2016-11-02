@@ -3,11 +3,13 @@ package htmlquery
 import (
 	"bytes"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/antchfx/gxpath"
 	"github.com/antchfx/gxpath/xpath"
 	"golang.org/x/net/html"
+	"golang.org/x/text/encoding/htmlindex"
 )
 
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
@@ -44,6 +46,29 @@ func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
 		cb(i, (t.Current().(*htmlNodeNavigator)).curr)
 		i++
 	}
+}
+
+func Load(url string) (*html.Node, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	charset := "utf-8"
+	contyp := strings.ToLower(resp.Header.Get("Content-Type"))
+	if i := strings.Index(contyp, "charset="); i > 0 {
+		charset = contyp[i+8:]
+	}
+	e, err := htmlindex.Get(charset)
+	if err != nil {
+		return nil, err
+	}
+	if name, _ := htmlindex.Name(e); name != "utf8" {
+		body := e.NewDecoder().Reader(resp.Body)
+		return html.Parse(body)
+	}
+	return html.Parse(resp.Body)
 }
 
 // InnerText returns the text between the start and end tags of the object.
