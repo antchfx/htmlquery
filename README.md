@@ -19,6 +19,7 @@ Methods:
 * Find(*html.Node, string) []*html.Node
 * FindOne(*html.Node, string) *html.Node
 * FindEach(*html.Node, string, func(int, *html.Node))
+* Load(string) *html.Node
 
 ```go
 package main
