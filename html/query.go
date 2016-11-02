@@ -40,7 +40,7 @@ func FindOne(top *html.Node, expr string) *html.Node {
 func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
 	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	i := 0
-	if t.MoveNext() {
+	for t.MoveNext() {
 		cb(i, (t.Current().(*htmlNodeNavigator)).curr)
 		i++
 	}
