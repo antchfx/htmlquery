@@ -3,8 +3,6 @@ package xmlquery
 import (
 	"strings"
 	"testing"
-
-	"github.com/antchfx/xml"
 )
 
 var doc = loadXml()
@@ -24,7 +22,7 @@ func TestXPath(t *testing.T) {
 	}
 }
 
-func loadXml() *xml.Node {
+func loadXml() *Node {
 	// https://msdn.microsoft.com/en-us/library/ms762271(v=vs.85).aspx
 	s := `
     <?xml version="1.0"?>
@@ -147,7 +145,7 @@ func loadXml() *xml.Node {
       environment.</description>
    </book>
 </catalog>`
-	node, err := xml.Parse(strings.NewReader(s))
+	node, err := ParseXML(strings.NewReader(s))
 	if err != nil {
 		panic(err)
 	}

@@ -29,37 +29,58 @@ import (
     "github.com/antchfx/xquery/html"	
 )
 
-func main() {	
+func main() {
+	html_string:=`<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+</body>
+</html>`
 	root, err := html.Parse(strings.NewReader(html_string))
 	if err != nil {
 		panic(err)
 	}
 	node := htmlquery.FindOne(root, "//title")
-	fmt.Println(htmlquery.InnerText(node))
+	fmt.Println(htmlquery.OutputHTML(node)) // output html text with tags
+	fmt.Println(htmlquery.InnerText(node))	
 }
 ```
 
 #### XML Query
 
 Methods: 
-* Find(*xml.Node, string) []*xml.Node
-* FindOne(*xml.Node, string) *xml.Node
-* FindEach(*xml.Node, string, func(int, *xml.Node))
+* Find(*Node, string) []*Node
+* FindOne(*Node, string) *Node
+* FindEach(*Node, string, func(int, *Node))
 
 ```go
 package main
 
 import (
-	"github.com/antchfx/xml"
 	"github.com/antchfx/xquery/xml"
 )
 
 func main() {
-	root, err := xml.Parse(strings.NewReader(xml_string))
+	xml_string:=`<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+<book category="cooking">
+  <title lang="en">Everyday Italian</title>
+  <author>Giada De Laurentiis</author>
+  <year>2005</year>
+  <price>30.00</price>
+</book>
+......
+</bookstore>`
+	root, err := xmlquery.ParseXML(strings.NewReader(xml_string))
 	if err != nil {
 		panic(err)
 	}
-	node := xmlquery.FindOne(root, "//title")
-	fmt.Println(node.InnerText())
+	node := xmlquery.FindOne(root, "//book[@category='cooking']")
+	fmt.Println(node.OutputXML()) // output xml text with tags
+	fmt.Println(node.InnerText()) // output text without tags
 }
 ```

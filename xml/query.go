@@ -5,26 +5,25 @@ import (
 
 	"github.com/antchfx/gxpath"
 	"github.com/antchfx/gxpath/xpath"
-	"github.com/antchfx/xml"
 )
 
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
-func CreateXPathNavigator(top *xml.Node) xpath.NodeNavigator {
+func CreateXPathNavigator(top *Node) xpath.NodeNavigator {
 	return &xmlNodeNavigator{curr: top, root: top, attr: -1}
 }
 
-func Find(top *xml.Node, expr string) []*xml.Node {
+func Find(top *Node, expr string) []*Node {
 	t := gxpath.Select(CreateXPathNavigator(top), expr)
-	var elems []*xml.Node
+	var elems []*Node
 	for t.MoveNext() {
 		elems = append(elems, (t.Current().(*xmlNodeNavigator)).curr)
 	}
 	return elems
 }
 
-func FindOne(top *xml.Node, expr string) *xml.Node {
+func FindOne(top *Node, expr string) *Node {
 	t := gxpath.Select(CreateXPathNavigator(top), expr)
-	var elem *xml.Node
+	var elem *Node
 	if t.MoveNext() {
 		elem = (t.Current().(*xmlNodeNavigator)).curr
 	}
@@ -32,7 +31,7 @@ func FindOne(top *xml.Node, expr string) *xml.Node {
 }
 
 // FindEach searches the html.Node and calls functions cb.
-func FindEach(top *xml.Node, expr string, cb func(int, *xml.Node)) {
+func FindEach(top *Node, expr string, cb func(int, *Node)) {
 	t := gxpath.Select(CreateXPathNavigator(top), expr)
 	i := 0
 	if t.MoveNext() {
@@ -42,19 +41,19 @@ func FindEach(top *xml.Node, expr string, cb func(int, *xml.Node)) {
 }
 
 type xmlNodeNavigator struct {
-	root, curr *xml.Node
+	root, curr *Node
 	attr       int
 }
 
 func (x *xmlNodeNavigator) NodeType() xpath.NodeType {
 	switch x.curr.Type {
-	case xml.CommentNode:
+	case CommentNode:
 		return xpath.CommentNode
-	case xml.TextNode:
+	case TextNode:
 		return xpath.TextNode
-	case xml.DeclarationNode, xml.DocumentNode:
+	case DeclarationNode, DocumentNode:
 		return xpath.RootNode
-	case xml.ElementNode:
+	case ElementNode:
 		if x.attr != -1 {
 			return xpath.AttributeNode
 		}
@@ -77,14 +76,14 @@ func (x *xmlNodeNavigator) Prefix() string {
 
 func (x *xmlNodeNavigator) Value() string {
 	switch x.curr.Type {
-	case xml.CommentNode:
+	case CommentNode:
 		return x.curr.Data
-	case xml.ElementNode:
+	case ElementNode:
 		if x.attr != -1 {
 			return x.curr.Attr[x.attr].Value
 		}
 		return x.curr.InnerText()
-	case xml.TextNode:
+	case TextNode:
 		return x.curr.Data
 	}
 	return ""
