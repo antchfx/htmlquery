@@ -19,7 +19,7 @@ func selectAttr(n *html.Node, key string) string {
 func main() {
 	q := "golang"
 	u := "http://www.bing.com/search?q=" + q
-	doc, err := htmlquery.Load(u)
+	doc, err := htmlquery.LoadURL(u)
 	if err != nil {
 		panic(err)
 	}

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	u := "https://www.amazon.com/Microsoft-Surface-Pro-QG2-00001-4300U/dp/B00NVXE45U"
-	doc, err := htmlquery.Load(u)
+	doc, err := htmlquery.LoadURL(u)
 	if err != nil {
 		panic(err)
 	}
