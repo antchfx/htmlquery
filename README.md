@@ -53,6 +53,7 @@ Methods:
 * Find(*Node, string) []*Node
 * FindOne(*Node, string) *Node
 * FindEach(*Node, string, func(int, *Node))
+* LoadURL(string) *Node
 
 ```go
 package main

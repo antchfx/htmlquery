@@ -6,7 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
+
+	"golang.org/x/net/html/charset"
 )
 
 // A NodeType is the type of a Node.
@@ -107,6 +110,21 @@ func addSibling(sibling, n *Node) {
 	if sibling.Parent != nil {
 		sibling.Parent.LastChild = n
 	}
+}
+
+// LoadURL loads the XML document from the specified URL.
+func LoadURL(url string) (*Node, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	r, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, err
+	}
+	return ParseXML(r)
 }
 
 func ParseXML(r io.Reader) (*Node, error) {
