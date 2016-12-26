@@ -52,6 +52,13 @@ func testValue(t *testing.T, val, expected string) {
 	}
 }
 
+func TestLoadHTMLError(t *testing.T) {
+	_, err := LoadURL("http://www.bing.com")
+	if err.Error() != "xml: document is invalid" {
+		t.Fatalf("expected error output is xml: document is invalid,but got: %v", err)
+	}
+}
+
 func TestParse(t *testing.T) {
 	s := `<?xml version="1.0" encoding="UTF-8"?>
 <bookstore>
