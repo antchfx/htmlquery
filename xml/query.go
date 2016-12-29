@@ -2,10 +2,37 @@ package xmlquery
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/antchfx/gxpath"
 	"github.com/antchfx/gxpath/xpath"
 )
+
+// SelectElements finds child elements with the specified name.
+func (n *Node) SelectElements(name string) []*Node {
+	return Find(n, name)
+}
+
+// SelectElements finds child elements with the specified name.
+func (n *Node) SelectElement(name string) *Node {
+	return FindOne(n, name)
+}
+
+// SelectAttr returns the attribute value with the specified name.
+func (n *Node) SelectAttr(name string) string {
+	var local, space string
+	local = name
+	if i := strings.Index(name, ":"); i > 0 {
+		space = name[:i]
+		local = name[i+1:]
+	}
+	for _, attr := range n.Attr {
+		if attr.Name.Local == local && attr.Name.Space == space {
+			return attr.Value
+		}
+	}
+	return ""
+}
 
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
 func CreateXPathNavigator(top *Node) xpath.NodeNavigator {

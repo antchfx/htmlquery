@@ -132,7 +132,7 @@ func TestTooNested(t *testing.T) {
                     </DDD> 
                 </EEE> 
             </DDD> 
-        </CCC> 
+        </CCC> 		
      </AAA>`
 	root, err := ParseXML(strings.NewReader(s))
 	if err != nil {
@@ -153,4 +153,41 @@ func TestTooNested(t *testing.T) {
 	ddd := findNode(bbb, "DDD")
 	testNode(t, ddd, "DDD")
 	testNode(t, ddd.LastChild, "CCC")
+}
+
+func TestSelectElement(t *testing.T) {
+	s := `<?xml version="1.0" encoding="UTF-8"?>
+    <AAA> 
+        <BBB id="1"/>
+        <CCC id="2"> 
+            <DDD/>   
+        </CCC> 
+		<CCC id="3"> 
+            <DDD/>
+        </CCC> 
+     </AAA>`
+	root, err := ParseXML(strings.NewReader(s))
+	if err != nil {
+		t.Error(err)
+	}
+	version := root.FirstChild.SelectAttr("version")
+	if version != "1.0" {
+		t.Fatal("version!=1.0")
+	}
+	aaa := findNode(root, "AAA")
+	var n *Node
+	n = aaa.SelectElement("BBB")
+	if n == nil {
+		t.Fatalf("n is nil")
+	}
+	n = aaa.SelectElement("CCC")
+	if n == nil {
+		t.Fatalf("n is nil")
+	}
+
+	var ns []*Node
+	ns = aaa.SelectElements("CCC")
+	if len(ns) != 2 {
+		t.Fatalf("len(ns)!=2")
+	}
 }
