@@ -137,12 +137,13 @@ func ParseXML(r io.Reader) (*Node, error) {
 	var prev *Node = doc
 	for {
 		tok, err := decoder.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
+		switch {
+		case err == io.EOF:
+			goto quit
+		case err != nil:
 			return nil, err
 		}
+
 		switch tok := tok.(type) {
 		case xml.StartElement:
 			if !declared {
@@ -194,7 +195,7 @@ func ParseXML(r io.Reader) (*Node, error) {
 			for _, pair := range pairs {
 				pair = strings.TrimSpace(pair)
 				if i := strings.Index(pair, "="); i > 0 {
-					addAttr(node, pair[:i], pair[i+1:])
+					addAttr(node, pair[:i], strings.Trim(pair[i+1:], `"`))
 				}
 			}
 			declared = true
@@ -208,5 +209,6 @@ func ParseXML(r io.Reader) (*Node, error) {
 		}
 
 	}
+quit:
 	return doc, nil
 }
