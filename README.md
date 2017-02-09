@@ -19,6 +19,7 @@ This package use golang [html](https://godoc.org/golang.org/x/net/html) package 
 |FindEach(*html.Node, expr string,cb func(int, *html.Node))|Searches all the matched html.Node and to pass its a callback function cb|
 |OutputHTML(*html.Node) string|Returns html format output of this html.Node|
 |InnerText(*html.Node) string|Returns text without html tag of this html.Node|
+|SelectAttr(*html.Node, name string) string|Returns the attribute value with the specified attribute name|
 
 ```go
 package main

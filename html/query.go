@@ -75,6 +75,20 @@ func InnerText(n *html.Node) string {
 	return strings.TrimSpace(buf.String())
 }
 
+// SelectAttr returns the attribute value with the specified name.
+func SelectAttr(n *html.Node, name string) (val string) {
+	if n == nil {
+		return
+	}
+	for _, attr := range n.Attr {
+		if attr.Key == name {
+			val = attr.Val
+			break
+		}
+	}
+	return
+}
+
 func isSelfClosingTag(t string) bool {
 	switch t {
 	case "area", "hr", "img", "meta", "source", "br", "input":
