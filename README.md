@@ -56,7 +56,7 @@ This package is similar to HTML query package, its implemented load XML document
 |Method                    |Descript|
 |--------------------------|----------------|
 |LoadURL(url string) (*Node, error) |Loads the XML document from the specified URL|
-|ParseXML(io.Reader) (*Node, error)|Parses the specified io.Reader to the XML document.|
+|Parse(io.Reader) (*Node, error)|Parses the specified io.Reader to the XML document.|
 |Find(*Node, expr string) []*Node|Searches all the xmlquery.Node that matches the specified XPath expression expr|
 |FindOne(*Node, expr string) *html.Node|Searches the xmlquery.Node and returns a first matched node|
 |FindEach(*Node, expr string,cb func(int, *Node))|Searches all the matched Node and to pass its a callback function cb|
@@ -84,7 +84,7 @@ func main() {
 </book>
 ......
 </bookstore>`
-	root, err := xmlquery.ParseXML(strings.NewReader(s))
+	root, err := xmlquery.Parse(strings.NewReader(s))
 	if err != nil {
 		panic(err)
 	}

@@ -127,7 +127,7 @@ func LoadURL(url string) (*Node, error) {
 	return ParseXML(r)
 }
 
-func ParseXML(r io.Reader) (*Node, error) {
+func parse(r io.Reader) (*Node, error) {
 	var (
 		decoder  = xml.NewDecoder(r)
 		doc      = &Node{Type: DocumentNode}
@@ -211,4 +211,14 @@ func ParseXML(r io.Reader) (*Node, error) {
 	}
 quit:
 	return doc, nil
+}
+
+// Parse returns the parse tree for the XML from the given Reader.
+func Parse(r io.Reader) (*Node, error) {
+	return parse(r)
+}
+
+// Deprecated,Parse returns the parse tree for the XML from the given Reader.
+func ParseXML(r io.Reader) (*Node, error) {
+	return parse(r)
 }
