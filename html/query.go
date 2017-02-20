@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/antchfx/gxpath"
-	"github.com/antchfx/gxpath/xpath"
+	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/charset"
 )
@@ -20,7 +19,7 @@ func CreateXPathNavigator(top *html.Node) xpath.NodeNavigator {
 // Find searches the html.Node that matches by the specified XPath expr.
 func Find(top *html.Node, expr string) []*html.Node {
 	var elems []*html.Node
-	t := gxpath.Select(CreateXPathNavigator(top), expr)
+	t := xpath.Select(CreateXPathNavigator(top), expr)
 	for t.MoveNext() {
 		elems = append(elems, (t.Current().(*htmlNodeNavigator)).curr)
 	}
@@ -31,7 +30,7 @@ func Find(top *html.Node, expr string) []*html.Node {
 // and returns first element of matched html.Node.
 func FindOne(top *html.Node, expr string) *html.Node {
 	var elem *html.Node
-	t := gxpath.Select(CreateXPathNavigator(top), expr)
+	t := xpath.Select(CreateXPathNavigator(top), expr)
 	if t.MoveNext() {
 		elem = (t.Current().(*htmlNodeNavigator)).curr
 	}
@@ -40,7 +39,7 @@ func FindOne(top *html.Node, expr string) *html.Node {
 
 // FindEach searches the html.Node and calls functions cb.
 func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
-	t := gxpath.Select(CreateXPathNavigator(top), expr)
+	t := xpath.Select(CreateXPathNavigator(top), expr)
 	i := 0
 	for t.MoveNext() {
 		cb(i, (t.Current().(*htmlNodeNavigator)).curr)
