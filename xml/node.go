@@ -26,10 +26,11 @@ const (
 type Node struct {
 	Parent, FirstChild, LastChild, PrevSibling, NextSibling *Node
 
-	Type      NodeType
-	Data      string
-	Namespace string
-	Attr      []xml.Attr
+	Type         NodeType
+	Data         string
+	Prefix       string
+	NamespaceURI string
+	Attr         []xml.Attr
 
 	level int // node level in the tree
 }
@@ -129,10 +130,11 @@ func LoadURL(url string) (*Node, error) {
 
 func parse(r io.Reader) (*Node, error) {
 	var (
-		decoder  = xml.NewDecoder(r)
-		doc      = &Node{Type: DocumentNode}
-		level    = 0
-		declared = false
+		decoder      = xml.NewDecoder(r)
+		doc          = &Node{Type: DocumentNode}
+		space2prefix = make(map[string]string)
+		level        = 0
+		declared     = false
 	)
 	var prev *Node = doc
 	for {
@@ -150,11 +152,17 @@ func parse(r io.Reader) (*Node, error) {
 				return nil, errors.New("xml: document is invalid")
 			}
 			node := &Node{
-				Type:      ElementNode,
-				Data:      tok.Name.Local,
-				Namespace: tok.Name.Space,
-				Attr:      tok.Attr,
-				level:     level,
+				Type:         ElementNode,
+				Data:         tok.Name.Local,
+				Prefix:       space2prefix[tok.Name.Space],
+				NamespaceURI: tok.Name.Space,
+				Attr:         tok.Attr,
+				level:        level,
+			}
+			for _, att := range tok.Attr {
+				if att.Name.Space == "xmlns" {
+					space2prefix[att.Value] = att.Name.Local
+				}
 			}
 			//fmt.Println(fmt.Sprintf("start > %s : %d", node.Data, level))
 			if level == prev.level {

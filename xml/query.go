@@ -97,7 +97,7 @@ func (x *xmlNodeNavigator) LocalName() string {
 }
 
 func (x *xmlNodeNavigator) Prefix() string {
-	return x.curr.Namespace
+	return x.curr.Prefix
 }
 
 func (x *xmlNodeNavigator) Value() string {
