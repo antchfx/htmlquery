@@ -64,14 +64,20 @@ func LoadURL(url string) (*html.Node, error) {
 
 // InnerText returns the text between the start and end tags of the object.
 func InnerText(n *html.Node) string {
-	if n.Type == html.TextNode || n.Type == html.CommentNode {
-		return n.Data
+	var output func(*bytes.Buffer, *html.Node)
+	output = func(buf *bytes.Buffer, n *html.Node) {
+		if n.Type == html.TextNode || n.Type == html.CommentNode {
+			buf.WriteString(n.Data)
+			return
+		}
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			output(buf, child)
+		}
 	}
+
 	var buf bytes.Buffer
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		buf.WriteString(InnerText(child))
-	}
-	return strings.TrimSpace(buf.String())
+	output(&buf, n)
+	return buf.String()
 }
 
 // SelectAttr returns the attribute value with the specified name.

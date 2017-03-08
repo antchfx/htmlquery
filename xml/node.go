@@ -37,14 +37,19 @@ type Node struct {
 
 // InnerText returns the text between the start and end tags of the object.
 func (n *Node) InnerText() string {
-	if n.Type == TextNode || n.Type == CommentNode {
-		return n.Data
+	var output func(*bytes.Buffer, *Node)
+	output = func(buf *bytes.Buffer, n *Node) {
+		if n.Type == TextNode || n.Type == CommentNode {
+			buf.WriteString(n.Data)
+			return
+		}
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			output(buf, child)
+		}
 	}
 
 	var buf bytes.Buffer
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		buf.WriteString(child.InnerText())
-	}
+	output(&buf, n)
 	return buf.String()
 }
 
