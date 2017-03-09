@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
@@ -103,34 +102,10 @@ func isSelfClosingTag(t string) bool {
 	}
 }
 
-func outputXML(buf *bytes.Buffer, n *html.Node) {
-	if n.Type == html.TextNode || n.Type == html.CommentNode {
-		buf.WriteString(strings.TrimSpace(n.Data))
-		return
-	}
-
-	buf.WriteString("<" + n.Data)
-	for _, attr := range n.Attr {
-		buf.WriteString(fmt.Sprintf(` %s="%s"`, attr.Key, attr.Val))
-	}
-	selfClosing := isSelfClosingTag(n.Data)
-	if selfClosing {
-		buf.WriteString("/>")
-	} else {
-		buf.WriteString(">")
-	}
-	for child := n.FirstChild; child != nil; child = child.NextSibling {
-		outputXML(buf, child)
-	}
-	if !selfClosing {
-		buf.WriteString(fmt.Sprintf("</%s>", n.Data))
-	}
-}
-
 // OutputHTML returns the text including tags name.
 func OutputHTML(n *html.Node) string {
 	var buf bytes.Buffer
-	outputXML(&buf, n)
+	html.Render(&buf, n)
 	return buf.String()
 }
 
