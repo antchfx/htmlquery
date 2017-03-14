@@ -39,8 +39,11 @@ type Node struct {
 func (n *Node) InnerText() string {
 	var output func(*bytes.Buffer, *Node)
 	output = func(buf *bytes.Buffer, n *Node) {
-		if n.Type == TextNode || n.Type == CommentNode {
+		switch n.Type {
+		case TextNode:
 			buf.WriteString(n.Data)
+			return
+		case CommentNode:
 			return
 		}
 		for child := n.FirstChild; child != nil; child = child.NextSibling {

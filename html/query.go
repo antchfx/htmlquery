@@ -65,8 +65,11 @@ func LoadURL(url string) (*html.Node, error) {
 func InnerText(n *html.Node) string {
 	var output func(*bytes.Buffer, *html.Node)
 	output = func(buf *bytes.Buffer, n *html.Node) {
-		if n.Type == html.TextNode || n.Type == html.CommentNode {
+		switch n.Type {
+		case html.TextNode:
 			buf.WriteString(n.Data)
+			return
+		case html.CommentNode:
 			return
 		}
 		for child := n.FirstChild; child != nil; child = child.NextSibling {
