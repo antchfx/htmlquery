@@ -1,6 +1,6 @@
 XQuery
 ====
-XQuery is a golang package to extract data from HTML and XML using XPath selectors.
+A golang package, extract data from HTML and XML documents using XPath expression.
 
 Supported most of XPath feature(syntax), you can found at [XPath](https://github.com/antchfx/xpath).
 
@@ -12,7 +12,7 @@ Installing
 HTML Query
 ===
 
-Lets extract data from HTML document using XPath.
+Extract data from HTML document using XPath.
 
 [![GoDoc](https://godoc.org/github.com/antchfx/xquery/html?status.svg)](https://godoc.org/github.com/antchfx/xquery/html)
 
@@ -35,7 +35,7 @@ func main() {
 <p>This is a paragraph.</p>
 </body>
 </html>`
-	root, err := html.Parse(strings.NewReader(s))
+	root, err := htmlquery.Parse(strings.NewReader(s))
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func main() {
 
 XML Query
 ===
-Lets extract data from XML document using XPath.
+Extract data from XML document using XPath.
 
 [![GoDoc](https://godoc.org/github.com/antchfx/xquery/xml?status.svg)](https://godoc.org/github.com/antchfx/xquery/xml)
 

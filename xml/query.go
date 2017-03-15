@@ -1,3 +1,6 @@
+/*
+	Package xmlquery is lets you extract data from XML documents using XPath expression.
+*/
 package xmlquery
 
 import (

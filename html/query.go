@@ -1,3 +1,6 @@
+/*
+	Package htmlquery is lets you extract data from HTML documents using XPath expression.
+*/
 package htmlquery
 
 import (
