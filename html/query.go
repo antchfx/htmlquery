@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"io"
+
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/charset"
@@ -58,6 +60,11 @@ func LoadURL(url string) (*html.Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	return html.Parse(r)
+}
+
+// Parse returns the parse tree for the HTML from the given Reader.
+func Parse(r io.Reader) (*html.Node, error) {
 	return html.Parse(r)
 }
 

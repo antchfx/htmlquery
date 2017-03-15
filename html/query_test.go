@@ -59,7 +59,7 @@ send me mail at <a href="mailto:support@yourcompany.com">support@yourcompany.com
 <hr>
 </body>
 </html`
-	node, err := html.Parse(strings.NewReader(str))
+	node, err := Parse(strings.NewReader(str))
 	if err != nil {
 		panic(err)
 	}
