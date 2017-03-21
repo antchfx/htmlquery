@@ -20,7 +20,6 @@ Extract data from HTML document using XPath.
 package main
 
 import (
-    "golang.org/x/net/html"
     "github.com/antchfx/xquery/html"	
 )
 
