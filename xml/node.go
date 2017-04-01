@@ -145,6 +145,9 @@ func LoadURL(url string) (*Node, error) {
 	return parse(r)
 }
 
+// ErrInvalidXML represents invalid XML error.
+var ErrInvalidXML = errors.New("invalid xml")
+
 func parse(r io.Reader) (*Node, error) {
 	var (
 		decoder      = xml.NewDecoder(r)
@@ -166,7 +169,7 @@ func parse(r io.Reader) (*Node, error) {
 		switch tok := tok.(type) {
 		case xml.StartElement:
 			if !declared {
-				return nil, errors.New("xml: document is invalid")
+				return nil, ErrInvalidXML
 			}
 			node := &Node{
 				Type:         ElementNode,
@@ -212,7 +215,7 @@ func parse(r io.Reader) (*Node, error) {
 			}
 		case xml.ProcInst: // Processing Instruction
 			if !declared && tok.Target != "xml" {
-				return nil, errors.New("xml: document is invalid(xml.ProcInst)")
+				return nil, ErrInvalidXML
 			}
 			level++
 			node := &Node{Type: DeclarationNode, level: level}

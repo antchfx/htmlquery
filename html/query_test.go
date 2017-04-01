@@ -4,61 +4,102 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/antchfx/xpath"
+
 	"golang.org/x/net/html"
 )
 
 var doc = loadHTML()
 
-func TestXPathSelect(t *testing.T) {
-	if node := FindOne(doc, "/html/head/title"); node == nil {
-		t.Fatal("cannot found any node")
+func TestHttpLoad(t *testing.T) {
+	doc, err := LoadURL("http://www.bing.com")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if node := FindOne(doc, "//body[@bgcolor]"); node.Attr[0].Val != "ffffff" {
-		t.Fatal("body bgcolor is not #ffffff")
-	}
-	if list := Find(doc, "//a"); len(list) != 2 {
-		t.Fatal("count(//a)!=2")
-	}
-	if list := Find(doc, "//body/child::*"); len(list) != 9 { // ignored textnode
-		t.Fatal("count(//body/child::*)!=9")
+	if doc == nil {
+		t.Fatal("doc is nil")
 	}
 }
 
-func TestInnerText(t *testing.T) {
-	title := FindOne(doc, "//title")
-	if txt := InnerText(title); strings.TrimSpace(txt) != "your title here" {
-		t.Fatalf("InnerText(//title): %s !=your title here", txt)
+func TestNavigator(t *testing.T) {
+	top := FindOne(doc, "//html")
+	nav := &htmlNodeNavigator{curr: top, root: top, attr: -1}
+	nav.MoveToChild() // HEAD
+	nav.MoveToNext()
+	if nav.NodeType() != xpath.TextNode {
+		t.Fatalf("expectd node type is TextNode,but got %s", nav.NodeType())
 	}
-	head := FindOne(doc, "/html/head")
-	if txt := InnerText(head); strings.TrimSpace(txt) != "your title here" {
-		t.Fatalf("InnerText(/html/head): %s !=your title here", txt)
+	nav.MoveToNext() // <BODY>
+	if nav.Value() != InnerText(FindOne(doc, "//body")) {
+		t.Fatal("body not equal")
 	}
-	img := FindOne(doc, "//img")
-	if OutputHTML(img) != `<img src="clouds.jpg" align="bottom"/>` {
-		t.Fatal(`OutputHTML(img)!='<img src="clouds.jpg" align="bottom"/>'`)
+	nav.MoveToPrevious() //
+	nav.MoveToParent()   //<HTML>
+	if nav.curr != top {
+		t.Fatal("current node is not html node")
+	}
+	nav.MoveToNextAttribute()
+	if nav.LocalName() != "lang" {
+		t.Fatal("node not move to lang attribute")
+	}
+
+	nav.MoveToFirst() // <!DOCTYPE html>
+	if nav.curr.Type != html.DoctypeNode {
+		t.Fatalf("expected node type is DoctypeNode,but got %d", nav.curr.Type)
+	}
+}
+
+func TestXPath(t *testing.T) {
+	node := FindOne(doc, "//html")
+	if SelectAttr(node, "lang") != "en-US" {
+		t.Fatal("//html[@lang] != en-Us")
+	}
+
+	var c int
+	FindEach(doc, "//li", func(i int, node *html.Node) {
+		c++
+	})
+	if c != len(Find(doc, "//li")) {
+		t.Fatal("li node count != 3")
+	}
+	node = FindOne(doc, "//header")
+	if strings.Index(InnerText(node), "Logo") > 0 {
+		t.Fatal("InnerText() have comment node text")
+	}
+	if strings.Index(OutputHTML(node), "Logo") == -1 {
+		t.Fatal("OutputHTML() shoud have comment node text")
 	}
 }
 
 func loadHTML() *html.Node {
-	// http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm
-	var str = `<!DOCTYPE html><html>
+	var str = `<!DOCTYPE html><html lang="en-US">
 <head>
-<title>your title here</title>
+<title>Hello,World!</title>
 </head>
-<body bgcolor="ffffff">
-<center><img src="clouds.jpg" align="bottom"> </center>
-<hr>
-<a href="http://somegreatsite.com">link name</a>
-is a link to another nifty site
-<h1>this is a header</h1>
-<h2>this is a medium header</h2>
-send me mail at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.
-<p> this is a new paragraph!
-<p> <b>this is a new paragraph!</b>
-<br> <b><i>this is a new sentence without a paragraph break, in bold italics.</i></b>
-<hr>
+<body>
+<div class="container">
+<header>
+	<!-- Logo -->
+   <h1>City Gallery</h1>
+</header>  
+<nav>
+  <ul>
+    <li><a href="#">London</a></li>
+    <li><a href="#">Paris</a></li>
+    <li><a href="#">Tokyo</a></li>
+  </ul>
+</nav>
+<article>
+  <h1>London</h1>
+  <img src="pic_mountain.jpg" alt="Mountain View" style="width:304px;height:228px;">
+  <p>London is the capital city of England. It is the most populous city in the  United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+  <p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
+</article>
+<footer>Copyright &copy; W3Schools.com</footer>
+</div>
 </body>
-</html`
+</html>
+`
 	node, err := Parse(strings.NewReader(str))
 	if err != nil {
 		panic(err)

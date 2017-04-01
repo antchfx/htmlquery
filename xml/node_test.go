@@ -54,8 +54,40 @@ func testValue(t *testing.T, val, expected string) {
 
 func TestLoadHTMLError(t *testing.T) {
 	_, err := LoadURL("http://www.bing.com")
-	if err.Error() != "xml: document is invalid" {
+	if err == nil || err != ErrInvalidXML {
 		t.Fatalf("expected error output is xml: document is invalid,but got: %v", err)
+	}
+}
+
+func TestNamespaceURL(t *testing.T) {
+	s := `
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:dc="https://purl.org/dc/elements/1.1/">
+<!-- author -->
+<dc:creator><![CDATA[Richard Lawler]]></dc:creator>
+<dc:identifier>21|22021348</dc:identifier>
+</rss>
+	`
+	doc, err := Parse(strings.NewReader(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+	top := FindOne(doc, "//rss")
+	if top == nil {
+		t.Fatal("rss feed invalid")
+	}
+	node := FindOne(top, "dc:creator")
+	if node.Prefix != "dc" {
+		t.Fatalf("expected node prefix name is dc but is=%s", node.Prefix)
+	}
+	if node.NamespaceURI != "https://purl.org/dc/elements/1.1/" {
+		t.Fatalf("dc:creator != %s", node.NamespaceURI)
+	}
+	if strings.Index(top.InnerText(), "author") > 0 {
+		t.Fatalf("InnerText() include comment node text")
+	}
+	if strings.Index(top.OutputXML(), "author") == -1 {
+		t.Fatal("OutputXML shoud include comment node,but not")
 	}
 }
 
@@ -113,8 +145,20 @@ func TestParse(t *testing.T) {
 	testValue(t, books[0].OutputXML(), `<book><title lang="en">Harry Potter</title><price>29.99</price></book>`)
 }
 
+func TestInvalidXML(t *testing.T) {
+	s := `<AAA>
+		<BBB></BBB>
+		<CCC></CCC>
+	</AAA>`
+	_, err := Parse(strings.NewReader(s))
+	if err == nil || err != ErrInvalidXML {
+		t.Fatal("xml document shoud be invalid but not")
+	}
+}
+
 func TestTooNested(t *testing.T) {
 	s := `<?xml version="1.0" encoding="UTF-8"?>
+	<!-- comment here-->
     <AAA> 
         <BBB> 
             <DDD> 

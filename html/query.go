@@ -105,15 +105,6 @@ func SelectAttr(n *html.Node, name string) (val string) {
 	return
 }
 
-func isSelfClosingTag(t string) bool {
-	switch t {
-	case "area", "hr", "img", "meta", "source", "br", "input":
-		return true
-	default:
-		return false
-	}
-}
-
 // OutputHTML returns the text including tags name.
 func OutputHTML(n *html.Node) string {
 	var buf bytes.Buffer
