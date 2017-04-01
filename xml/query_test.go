@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var doc = loadXml()
+var doc = loadXML()
 
 func TestXPath(t *testing.T) {
 	if list := Find(doc, "//book"); len(list) != 12 {
@@ -22,7 +22,7 @@ func TestXPath(t *testing.T) {
 	}
 }
 
-func loadXml() *Node {
+func loadXML() *Node {
 	// https://msdn.microsoft.com/en-us/library/ms762271(v=vs.85).aspx
 	s := `
     <?xml version="1.0"?>
@@ -110,7 +110,7 @@ func loadXml() *Node {
       <genre>Science Fiction</genre>
       <price>6.95</price>
       <publish_date>2000-11-02</publish_date>
-      <description>After an inadvertant trip through a Heisenberg
+      <description>After an inadvertent trip through a Heisenberg
       Uncertainty Device, James Salway discovers the problems 
       of being quantum.</description>
    </book>

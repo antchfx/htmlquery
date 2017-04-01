@@ -1,14 +1,13 @@
 /*
-	Package htmlquery is lets you extract data from HTML documents using XPath expression.
+Package htmlquery provides extract data from HTML documents using XPath expression.
 */
 package htmlquery
 
 import (
 	"bytes"
 	"fmt"
-	"net/http"
-
 	"io"
+	"net/http"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"

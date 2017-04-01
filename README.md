@@ -7,7 +7,7 @@ Supported most of XPath feature(syntax), you can found at [XPath](https://github
 Installing
 ====
 
-> go get -u github.com/antchfx/xquery
+> go get github.com/antchfx/xquery
 
 HTML Query
 ===

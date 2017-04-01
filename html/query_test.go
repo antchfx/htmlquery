@@ -7,7 +7,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-var doc = loadHtml()
+var doc = loadHTML()
 
 func TestXPathSelect(t *testing.T) {
 	if node := FindOne(doc, "/html/head/title"); node == nil {
@@ -39,7 +39,7 @@ func TestInnerText(t *testing.T) {
 	}
 }
 
-func loadHtml() *html.Node {
+func loadHTML() *html.Node {
 	// http://help.websiteos.com/websiteos/example_of_a_simple_html_page.htm
 	var str = `<!DOCTYPE html><html>
 <head>

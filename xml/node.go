@@ -16,13 +16,22 @@ import (
 type NodeType uint
 
 const (
+	// DocumentNode is a document object that, as the root of the document tree,
+	// provides access to the entire XML document.
 	DocumentNode NodeType = iota
+	// DeclarationNode is the document type declaration, indicated by the following
+	// tag (for example, <!DOCTYPE...> ).
 	DeclarationNode
+	// ElementNode is an element (for example, <item> ).
 	ElementNode
+	// TextNode is the text content of a node.
 	TextNode
+	// CommentNode a comment (for example, <!-- my comment --> ).
 	CommentNode
 )
 
+// A Node consists of a NodeType and some Data (tag name for
+// element nodes, content for text) and are part of a tree of Nodes.
 type Node struct {
 	Parent, FirstChild, LastChild, PrevSibling, NextSibling *Node
 
@@ -133,7 +142,7 @@ func LoadURL(url string) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ParseXML(r)
+	return parse(r)
 }
 
 func parse(r io.Reader) (*Node, error) {
@@ -144,7 +153,7 @@ func parse(r io.Reader) (*Node, error) {
 		level        = 0
 		declared     = false
 	)
-	var prev *Node = doc
+	prev := doc
 	for {
 		tok, err := decoder.Token()
 		switch {
@@ -234,7 +243,7 @@ func Parse(r io.Reader) (*Node, error) {
 	return parse(r)
 }
 
-// Deprecated,Parse returns the parse tree for the XML from the given Reader.
+// ParseXML returns the parse tree for the XML from the given Reader.Deprecated.
 func ParseXML(r io.Reader) (*Node, error) {
 	return parse(r)
 }

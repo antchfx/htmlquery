@@ -1,5 +1,5 @@
 /*
-	Package xmlquery is lets you extract data from XML documents using XPath expression.
+Package xmlquery provides extract data from XML documents using XPath expression.
 */
 package xmlquery
 
@@ -15,7 +15,7 @@ func (n *Node) SelectElements(name string) []*Node {
 	return Find(n, name)
 }
 
-// SelectElements finds child elements with the specified name.
+// SelectElement finds child elements with the specified name.
 func (n *Node) SelectElement(name string) *Node {
 	return FindOne(n, name)
 }
@@ -41,6 +41,7 @@ func CreateXPathNavigator(top *Node) xpath.NodeNavigator {
 	return &xmlNodeNavigator{curr: top, root: top, attr: -1}
 }
 
+// Find searches the Node that matches by the specified XPath expr.
 func Find(top *Node, expr string) []*Node {
 	t := xpath.Select(CreateXPathNavigator(top), expr)
 	var elems []*Node
@@ -50,6 +51,8 @@ func Find(top *Node, expr string) []*Node {
 	return elems
 }
 
+// FindOne searches the Node that matches by the specified XPath expr,
+// and returns first element of matched.
 func FindOne(top *Node, expr string) *Node {
 	t := xpath.Select(CreateXPathNavigator(top), expr)
 	var elem *Node
