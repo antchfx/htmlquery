@@ -202,8 +202,8 @@ func parse(r io.Reader) (*Node, error) {
 				addChild(prev, node)
 			}
 		case xml.ProcInst: // Processing Instruction
-			if declared || (!declared && tok.Target != "xml") {
-				return nil, errors.New("xml: document is invalid")
+			if !declared && tok.Target != "xml" {
+				return nil, errors.New("xml: document is invalid(xml.ProcInst)")
 			}
 			level++
 			node := &Node{Type: DeclarationNode, level: level}
