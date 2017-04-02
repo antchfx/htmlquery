@@ -1,6 +1,8 @@
 package xmlquery
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -52,10 +54,19 @@ func testValue(t *testing.T, val, expected string) {
 	}
 }
 
-func TestLoadHTMLError(t *testing.T) {
-	_, err := LoadURL("http://www.bing.com")
-	if err == nil || err != ErrInvalidXML {
-		t.Fatalf("expected error output is xml: document is invalid,but got: %v", err)
+func TestLoadURL(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		s := `<?xml version="1.0"?>
+       <rss>
+	   	<title></title>
+	   </rss>`
+		w.Header().Set("Content-Type", "text/xml")
+		w.Write([]byte(s))
+	}))
+	defer server.Close()
+	_, err := LoadURL(server.URL)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -88,6 +99,29 @@ func TestNamespaceURL(t *testing.T) {
 	}
 	if strings.Index(top.OutputXML(), "author") == -1 {
 		t.Fatal("OutputXML shoud include comment node,but not")
+	}
+}
+
+func TestMultipleProcInst(t *testing.T) {
+	s := `<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" media="screen" href="/~d/styles/rss2full.xsl"?>
+<?xml-stylesheet type="text/css" media="screen" href="http://feeds.reuters.com/~d/styles/itemcontent.css"?>
+<rss xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" version="2.0">
+</rss>
+	`
+	doc, err := Parse(strings.NewReader(s))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	node := doc.FirstChild // <?xml ?>
+	if node.Data != "xml" {
+		t.Fatal("node.Data != xml")
+	}
+	node = node.NextSibling // New Line
+	node = node.NextSibling // <?xml-stylesheet?>
+	if node.Data != "xml-stylesheet" {
+		t.Fatal("node.Data != xml-stylesheet")
 	}
 }
 
@@ -145,14 +179,14 @@ func TestParse(t *testing.T) {
 	testValue(t, books[0].OutputXML(), `<book><title lang="en">Harry Potter</title><price>29.99</price></book>`)
 }
 
-func TestInvalidXML(t *testing.T) {
+func TestMissDeclaration(t *testing.T) {
 	s := `<AAA>
 		<BBB></BBB>
 		<CCC></CCC>
 	</AAA>`
 	_, err := Parse(strings.NewReader(s))
-	if err == nil || err != ErrInvalidXML {
-		t.Fatal("xml document shoud be invalid but not")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

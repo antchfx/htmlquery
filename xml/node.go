@@ -3,7 +3,6 @@ package xmlquery
 import (
 	"bytes"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -145,16 +144,12 @@ func LoadURL(url string) (*Node, error) {
 	return parse(r)
 }
 
-// ErrInvalidXML represents invalid XML error.
-var ErrInvalidXML = errors.New("invalid xml")
-
 func parse(r io.Reader) (*Node, error) {
 	var (
 		decoder      = xml.NewDecoder(r)
 		doc          = &Node{Type: DocumentNode}
 		space2prefix = make(map[string]string)
 		level        = 0
-		declared     = false
 	)
 	prev := doc
 	for {
@@ -168,9 +163,6 @@ func parse(r io.Reader) (*Node, error) {
 
 		switch tok := tok.(type) {
 		case xml.StartElement:
-			if !declared {
-				return nil, ErrInvalidXML
-			}
 			node := &Node{
 				Type:         ElementNode,
 				Data:         tok.Name.Local,
@@ -214,11 +206,10 @@ func parse(r io.Reader) (*Node, error) {
 				addChild(prev, node)
 			}
 		case xml.ProcInst: // Processing Instruction
-			if !declared && tok.Target != "xml" {
-				return nil, ErrInvalidXML
+			if prev.Type != DeclarationNode {
+				level++
 			}
-			level++
-			node := &Node{Type: DeclarationNode, level: level}
+			node := &Node{Type: DeclarationNode, Data: tok.Target, level: level}
 			pairs := strings.Split(string(tok.Inst), " ")
 			for _, pair := range pairs {
 				pair = strings.TrimSpace(pair)
@@ -226,7 +217,6 @@ func parse(r io.Reader) (*Node, error) {
 					addAttr(node, pair[:i], strings.Trim(pair[i+1:], `"`))
 				}
 			}
-			declared = true
 			if level == prev.level {
 				addSibling(prev, node)
 			} else if level > prev.level {
