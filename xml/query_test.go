@@ -8,8 +8,8 @@ import (
 var doc = loadXML()
 
 func TestXPath(t *testing.T) {
-	if list := Find(doc, "//book"); len(list) != 12 {
-		t.Fatal("count(//book) != 12")
+	if list := Find(doc, "//book"); len(list) != 3 {
+		t.Fatal("count(//book) != 3")
 	}
 	if node := FindOne(doc, "//book[@id='bk101']"); node == nil {
 		t.Fatal("//book[@id='bk101] is not found")
@@ -17,8 +17,46 @@ func TestXPath(t *testing.T) {
 	if node := FindOne(doc, "//book[price>=44.95]"); node == nil {
 		t.Fatal("//book/price>=44.95 is not found")
 	}
-	if list := Find(doc, "//book[genre='Fantasy']"); len(list) != 4 {
-		t.Fatal("//book[genre='Fantasy'] items count is not equal 4")
+	if list := Find(doc, "//book[genre='Fantasy']"); len(list) != 2 {
+		t.Fatal("//book[genre='Fantasy'] items count is not equal 2")
+	}
+	var c int
+	FindEach(doc, "//book", func(i int, n *Node) {
+		c++
+	})
+	if c != len(Find(doc, "//book")) {
+		t.Fatal("count(//book) != 3")
+	}
+	node := FindOne(doc, "//book[1]")
+	if node.SelectAttr("id") != "bk101" {
+		t.Fatal("//book[1]/@id != bk101")
+	}
+}
+
+func TestNavigator(t *testing.T) {
+	nav := &xmlNodeNavigator{curr: doc, root: doc, attr: -1}
+	nav.MoveToChild() // New Line
+	nav.MoveToNext()  // catalog
+	if nav.curr.Data != "catalog" {
+		t.Fatal("current node name != `catalog`")
+	}
+	nav.MoveToChild() // New Line
+	nav.MoveToNext()  // comment node
+	if nav.curr.Type != CommentNode {
+		t.Fatal("node type not CommentNode")
+	}
+	nav.Value()
+	nav.MoveToNext() // New Line
+	nav.MoveToNext() //book
+	nav.MoveToChild()
+	nav.MoveToNext() // book/author
+	if nav.LocalName() != "author" {
+		t.Fatalf("node error")
+	}
+	nav.MoveToParent() // book
+	nav.MoveToNext()   // next book
+	if nav.curr.SelectAttr("id") != "bk102" {
+		t.Fatal("node error")
 	}
 }
 
@@ -27,6 +65,7 @@ func loadXML() *Node {
 	s := `
     <?xml version="1.0"?>
 <catalog>
+   <!-- book list-->
    <book id="bk101">
       <author>Gambardella, Matthew</author>
       <title>XML Developer's Guide</title>
@@ -55,94 +94,6 @@ func loadXML() *Node {
       <description>After the collapse of a nanotechnology 
       society in England, the young survivors lay the 
       foundation for a new society.</description>
-   </book>
-   <book id="bk104">
-      <author>Corets, Eva</author>
-      <title>Oberon's Legacy</title>
-      <genre>Fantasy</genre>
-      <price>5.95</price>
-      <publish_date>2001-03-10</publish_date>
-      <description>In post-apocalypse England, the mysterious 
-      agent known only as Oberon helps to create a new life 
-      for the inhabitants of London. Sequel to Maeve 
-      Ascendant.</description>
-   </book>
-   <book id="bk105">
-      <author>Corets, Eva</author>
-      <title>The Sundered Grail</title>
-      <genre>Fantasy</genre>
-      <price>5.95</price>
-      <publish_date>2001-09-10</publish_date>
-      <description>The two daughters of Maeve, half-sisters, 
-      battle one another for control of England. Sequel to 
-      Oberon's Legacy.</description>
-   </book>
-   <book id="bk106">
-      <author>Randall, Cynthia</author>
-      <title>Lover Birds</title>
-      <genre>Romance</genre>
-      <price>4.95</price>
-      <publish_date>2000-09-02</publish_date>
-      <description>When Carla meets Paul at an ornithology 
-      conference, tempers fly as feathers get ruffled.</description>
-   </book>
-   <book id="bk107">
-      <author>Thurman, Paula</author>
-      <title>Splish Splash</title>
-      <genre>Romance</genre>
-      <price>4.95</price>
-      <publish_date>2000-11-02</publish_date>
-      <description>A deep sea diver finds true love twenty 
-      thousand leagues beneath the sea.</description>
-   </book>
-   <book id="bk108">
-      <author>Knorr, Stefan</author>
-      <title>Creepy Crawlies</title>
-      <genre>Horror</genre>
-      <price>4.95</price>
-      <publish_date>2000-12-06</publish_date>
-      <description>An anthology of horror stories about roaches,
-      centipedes, scorpions  and other insects.</description>
-   </book>
-   <book id="bk109">
-      <author>Kress, Peter</author>
-      <title>Paradox Lost</title>
-      <genre>Science Fiction</genre>
-      <price>6.95</price>
-      <publish_date>2000-11-02</publish_date>
-      <description>After an inadvertent trip through a Heisenberg
-      Uncertainty Device, James Salway discovers the problems 
-      of being quantum.</description>
-   </book>
-   <book id="bk110">
-      <author>O'Brien, Tim</author>
-      <title>Microsoft .NET: The Programming Bible</title>
-      <genre>Computer</genre>
-      <price>36.95</price>
-      <publish_date>2000-12-09</publish_date>
-      <description>Microsoft's .NET initiative is explored in 
-      detail in this deep programmer's reference.</description>
-   </book>
-   <book id="bk111">
-      <author>O'Brien, Tim</author>
-      <title>MSXML3: A Comprehensive Guide</title>
-      <genre>Computer</genre>
-      <price>36.95</price>
-      <publish_date>2000-12-01</publish_date>
-      <description>The Microsoft MSXML3 parser is covered in 
-      detail, with attention to XML DOM interfaces, XSLT processing, 
-      SAX and more.</description>
-   </book>
-   <book id="bk112">
-      <author>Galos, Mike</author>
-      <title>Visual Studio 7: A Comprehensive Guide</title>
-      <genre>Computer</genre>
-      <price>49.95</price>
-      <publish_date>2001-04-16</publish_date>
-      <description>Microsoft Visual Studio 7 is explored in depth,
-      looking at how Visual Basic, Visual C++, C#, and ASP+ are 
-      integrated into a comprehensive development 
-      environment.</description>
    </book>
 </catalog>`
 	node, err := ParseXML(strings.NewReader(s))
