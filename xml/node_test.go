@@ -184,9 +184,13 @@ func TestMissDeclaration(t *testing.T) {
 		<BBB></BBB>
 		<CCC></CCC>
 	</AAA>`
-	_, err := Parse(strings.NewReader(s))
+	doc, err := Parse(strings.NewReader(s))
 	if err != nil {
 		t.Fatal(err)
+	}
+	node := FindOne(doc, "//AAA")
+	if node == nil {
+		t.Fatal("//AAA is nil")
 	}
 }
 

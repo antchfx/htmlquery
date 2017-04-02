@@ -163,6 +163,13 @@ func parse(r io.Reader) (*Node, error) {
 
 		switch tok := tok.(type) {
 		case xml.StartElement:
+			if level == 0 {
+				// mising XML declaration
+				node := &Node{Type: DeclarationNode, Data: "xml", level: 1}
+				addChild(prev, node)
+				level = 1
+				prev = node
+			}
 			node := &Node{
 				Type:         ElementNode,
 				Data:         tok.Name.Local,
