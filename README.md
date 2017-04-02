@@ -1,5 +1,10 @@
 XQuery
 ====
+[![Build Status](https://travis-ci.org/antchfx/xquery.svg?branch=master)](https://travis-ci.org/antchfx/xquery)
+[![Coverage Status](https://coveralls.io/repos/github/antchfx/xquery/badge.svg?branch=master)](https://coveralls.io/github/antchfx/xquery?branch=master)
+[![GoDoc](https://godoc.org/github.com/antchfx/xquery?status.svg)](https://godoc.org/github.com/antchfx/xquery)
+[![Go Report Card](https://goreportcard.com/badge/github.com/antchfx/xquery)](https://goreportcard.com/report/github.com/antchfx/xquery)
+
 A golang package, extract data from HTML and XML documents using XPath expression.
 
 Supported most of XPath feature(syntax), you can found at [XPath](https://github.com/antchfx/xpath).
