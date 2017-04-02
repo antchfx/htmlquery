@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/antchfx/xquery/html"
 )
@@ -23,8 +24,9 @@ func main() {
 	product.price = htmlquery.InnerText(htmlquery.FindOne(doc, "//span[@id='priceblock_ourprice']"))
 	product.merchant = htmlquery.InnerText(htmlquery.FindOne(doc, "//div[@id='merchant-info']/a"))
 
-	fmt.Println(product.name)
-	fmt.Println(product.brand)
-	fmt.Println(product.price)
-	fmt.Println(product.merchant)
+	fmt.Printf("%s \n", u)
+	fmt.Printf("Name: %s\n", strings.TrimSpace(product.name))
+	fmt.Printf("Brand: %s\n", product.brand)
+	fmt.Printf("Price: %s\n", product.price)
+	fmt.Printf("Merchant: %s\n", product.merchant)
 }

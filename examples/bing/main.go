@@ -7,15 +7,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-func selectAttr(n *html.Node, key string) string {
-	for _, attr := range n.Attr {
-		if attr.Key == key {
-			return attr.Val
-		}
-	}
-	return ""
-}
-
 func main() {
 	q := "golang"
 	u := "http://www.bing.com/search?q=" + q
@@ -32,12 +23,11 @@ func main() {
 
 	var entries []entry
 	htmlquery.FindEach(doc, "//ol[@id='b_results']/li[@class='b_algo']", func(i int, node *html.Node) {
-		fmt.Println(i)
 		item := entry{}
 		item.id = i
 		h2 := htmlquery.FindOne(node, "//h2")
 		item.title = htmlquery.InnerText(h2)
-		item.url = selectAttr(htmlquery.FindOne(h2, "a"), "href")
+		item.url = htmlquery.SelectAttr(htmlquery.FindOne(h2, "a"), "href")
 		if n := htmlquery.FindOne(node, "//div[@class='b_caption']/p"); n != nil {
 			item.desc = htmlquery.InnerText(n)
 		}
