@@ -136,12 +136,7 @@ func LoadURL(url string) (*Node, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-
-	r, err := charset.NewReader(resp.Body, resp.Header.Get("Content-Type"))
-	if err != nil {
-		return nil, err
-	}
-	return parse(r)
+	return parse(resp.Body)
 }
 
 func parse(r io.Reader) (*Node, error) {
@@ -151,6 +146,7 @@ func parse(r io.Reader) (*Node, error) {
 		space2prefix = make(map[string]string)
 		level        = 0
 	)
+	decoder.CharsetReader = charset.NewReaderLabel
 	prev := doc
 	for {
 		tok, err := decoder.Token()
