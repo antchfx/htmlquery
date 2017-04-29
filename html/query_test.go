@@ -66,7 +66,7 @@ func TestXPath(t *testing.T) {
 	if strings.Index(InnerText(node), "Logo") > 0 {
 		t.Fatal("InnerText() have comment node text")
 	}
-	if strings.Index(OutputHTML(node), "Logo") == -1 {
+	if strings.Index(OutputHTML(node, true), "Logo") == -1 {
 		t.Fatal("OutputHTML() shoud have comment node text")
 	}
 }

@@ -106,9 +106,15 @@ func SelectAttr(n *html.Node, name string) (val string) {
 }
 
 // OutputHTML returns the text including tags name.
-func OutputHTML(n *html.Node) string {
+func OutputHTML(n *html.Node, self bool) string {
 	var buf bytes.Buffer
-	html.Render(&buf, n)
+	if self {
+		html.Render(&buf, n)
+	} else {
+		for n := n.FirstChild; n != nil; n = n.NextSibling {
+			html.Render(&buf, n)
+		}
+	}
 	return buf.String()
 }
 
