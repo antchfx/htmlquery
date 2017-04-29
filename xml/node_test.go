@@ -97,7 +97,7 @@ func TestNamespaceURL(t *testing.T) {
 	if strings.Index(top.InnerText(), "author") > 0 {
 		t.Fatalf("InnerText() include comment node text")
 	}
-	if strings.Index(top.OutputXML(), "author") == -1 {
+	if strings.Index(top.OutputXML(true), "author") == -1 {
 		t.Fatal("OutputXML shoud include comment node,but not")
 	}
 }
@@ -176,7 +176,7 @@ func TestParse(t *testing.T) {
 	testAttr(t, findNode(books[1], "title"), "lang", "en")
 	testValue(t, findNode(books[1], "price").InnerText(), "39.95")
 
-	testValue(t, books[0].OutputXML(), `<book><title lang="en">Harry Potter</title><price>29.99</price></book>`)
+	testValue(t, books[0].OutputXML(true), `<book><title lang="en">Harry Potter</title><price>29.99</price></book>`)
 }
 
 func TestMissDeclaration(t *testing.T) {

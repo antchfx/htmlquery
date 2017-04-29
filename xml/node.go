@@ -85,9 +85,16 @@ func outputXML(buf *bytes.Buffer, n *Node) {
 }
 
 // OutputXML returns the text that including tags name.
-func (n *Node) OutputXML() string {
+func (n *Node) OutputXML(self bool) string {
 	var buf bytes.Buffer
-	outputXML(&buf, n)
+	if self {
+		outputXML(&buf, n)
+	} else {
+		for n := n.FirstChild; n != nil; n = n.NextSibling {
+			outputXML(&buf, n)
+		}
+	}
+
 	return buf.String()
 }
 
