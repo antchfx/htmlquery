@@ -23,7 +23,7 @@ func TestHttpLoad(t *testing.T) {
 
 func TestNavigator(t *testing.T) {
 	top := FindOne(doc, "//html")
-	nav := &htmlNodeNavigator{curr: top, root: top, attr: -1}
+	nav := &NodeNavigator{curr: top, root: top, attr: -1}
 	nav.MoveToChild() // HEAD
 	nav.MoveToNext()
 	if nav.NodeType() != xpath.TextNode {

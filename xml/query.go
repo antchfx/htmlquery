@@ -36,17 +36,23 @@ func (n *Node) SelectAttr(name string) string {
 	return ""
 }
 
+var _ xpath.NodeNavigator = &NodeNavigator{}
+
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
-func CreateXPathNavigator(top *Node) xpath.NodeNavigator {
-	return &xmlNodeNavigator{curr: top, root: top, attr: -1}
+func CreateXPathNavigator(top *Node) *NodeNavigator {
+	return &NodeNavigator{curr: top, root: top, attr: -1}
 }
 
 // Find searches the Node that matches by the specified XPath expr.
 func Find(top *Node, expr string) []*Node {
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	var elems []*Node
 	for t.MoveNext() {
-		elems = append(elems, (t.Current().(*xmlNodeNavigator)).curr)
+		elems = append(elems, (t.Current().(*NodeNavigator)).curr)
 	}
 	return elems
 }
@@ -54,30 +60,38 @@ func Find(top *Node, expr string) []*Node {
 // FindOne searches the Node that matches by the specified XPath expr,
 // and returns first element of matched.
 func FindOne(top *Node, expr string) *Node {
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	var elem *Node
 	if t.MoveNext() {
-		elem = (t.Current().(*xmlNodeNavigator)).curr
+		elem = (t.Current().(*NodeNavigator)).curr
 	}
 	return elem
 }
 
 // FindEach searches the html.Node and calls functions cb.
 func FindEach(top *Node, expr string, cb func(int, *Node)) {
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	var i int
 	for t.MoveNext() {
-		cb(i, (t.Current().(*xmlNodeNavigator)).curr)
+		cb(i, (t.Current().(*NodeNavigator)).curr)
 		i++
 	}
 }
 
-type xmlNodeNavigator struct {
+type NodeNavigator struct {
 	root, curr *Node
 	attr       int
 }
 
-func (x *xmlNodeNavigator) NodeType() xpath.NodeType {
+func (x *NodeNavigator) NodeType() xpath.NodeType {
 	switch x.curr.Type {
 	case CommentNode:
 		return xpath.CommentNode
@@ -94,7 +108,7 @@ func (x *xmlNodeNavigator) NodeType() xpath.NodeType {
 	panic(fmt.Sprintf("unknown XML node type: %v", x.curr.Type))
 }
 
-func (x *xmlNodeNavigator) LocalName() string {
+func (x *NodeNavigator) LocalName() string {
 	if x.attr != -1 {
 		return x.curr.Attr[x.attr].Name.Local
 	}
@@ -102,11 +116,11 @@ func (x *xmlNodeNavigator) LocalName() string {
 
 }
 
-func (x *xmlNodeNavigator) Prefix() string {
+func (x *NodeNavigator) Prefix() string {
 	return x.curr.Prefix
 }
 
-func (x *xmlNodeNavigator) Value() string {
+func (x *NodeNavigator) Value() string {
 	switch x.curr.Type {
 	case CommentNode:
 		return x.curr.Data
@@ -121,16 +135,16 @@ func (x *xmlNodeNavigator) Value() string {
 	return ""
 }
 
-func (x *xmlNodeNavigator) Copy() xpath.NodeNavigator {
+func (x *NodeNavigator) Copy() xpath.NodeNavigator {
 	n := *x
 	return &n
 }
 
-func (x *xmlNodeNavigator) MoveToRoot() {
+func (x *NodeNavigator) MoveToRoot() {
 	x.curr = x.root
 }
 
-func (x *xmlNodeNavigator) MoveToParent() bool {
+func (x *NodeNavigator) MoveToParent() bool {
 	if node := x.curr.Parent; node != nil {
 		x.curr = node
 		return true
@@ -138,7 +152,7 @@ func (x *xmlNodeNavigator) MoveToParent() bool {
 	return false
 }
 
-func (x *xmlNodeNavigator) MoveToNextAttribute() bool {
+func (x *NodeNavigator) MoveToNextAttribute() bool {
 	if x.attr >= len(x.curr.Attr)-1 {
 		return false
 	}
@@ -146,7 +160,7 @@ func (x *xmlNodeNavigator) MoveToNextAttribute() bool {
 	return true
 }
 
-func (x *xmlNodeNavigator) MoveToChild() bool {
+func (x *NodeNavigator) MoveToChild() bool {
 	if node := x.curr.FirstChild; node != nil {
 		x.curr = node
 		return true
@@ -154,7 +168,7 @@ func (x *xmlNodeNavigator) MoveToChild() bool {
 	return false
 }
 
-func (x *xmlNodeNavigator) MoveToFirst() bool {
+func (x *NodeNavigator) MoveToFirst() bool {
 	if x.curr.PrevSibling == nil {
 		return false
 	}
@@ -168,11 +182,11 @@ func (x *xmlNodeNavigator) MoveToFirst() bool {
 	return true
 }
 
-func (x *xmlNodeNavigator) String() string {
+func (x *NodeNavigator) String() string {
 	return x.Value()
 }
 
-func (x *xmlNodeNavigator) MoveToNext() bool {
+func (x *NodeNavigator) MoveToNext() bool {
 	if node := x.curr.NextSibling; node != nil {
 		x.curr = node
 		return true
@@ -180,7 +194,7 @@ func (x *xmlNodeNavigator) MoveToNext() bool {
 	return false
 }
 
-func (x *xmlNodeNavigator) MoveToPrevious() bool {
+func (x *NodeNavigator) MoveToPrevious() bool {
 	if node := x.curr.PrevSibling; node != nil {
 		x.curr = node
 		return true
@@ -188,8 +202,8 @@ func (x *xmlNodeNavigator) MoveToPrevious() bool {
 	return false
 }
 
-func (x *xmlNodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
-	node, ok := other.(*xmlNodeNavigator)
+func (x *NodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
+	node, ok := other.(*NodeNavigator)
 	if !ok || node.root != x.root {
 		return false
 	}

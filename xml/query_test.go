@@ -34,7 +34,7 @@ func TestXPath(t *testing.T) {
 }
 
 func TestNavigator(t *testing.T) {
-	nav := &xmlNodeNavigator{curr: doc, root: doc, attr: -1}
+	nav := &NodeNavigator{curr: doc, root: doc, attr: -1}
 	nav.MoveToChild() // New Line
 	nav.MoveToNext()  // catalog
 	if nav.curr.Data != "catalog" {

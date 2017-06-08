@@ -14,17 +14,23 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+var _ xpath.NodeNavigator = &NodeNavigator{}
+
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
-func CreateXPathNavigator(top *html.Node) xpath.NodeNavigator {
-	return &htmlNodeNavigator{curr: top, root: top, attr: -1}
+func CreateXPathNavigator(top *html.Node) *NodeNavigator {
+	return &NodeNavigator{curr: top, root: top, attr: -1}
 }
 
 // Find searches the html.Node that matches by the specified XPath expr.
 func Find(top *html.Node, expr string) []*html.Node {
 	var elems []*html.Node
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	for t.MoveNext() {
-		elems = append(elems, (t.Current().(*htmlNodeNavigator)).curr)
+		elems = append(elems, (t.Current().(*NodeNavigator)).curr)
 	}
 	return elems
 }
@@ -33,19 +39,27 @@ func Find(top *html.Node, expr string) []*html.Node {
 // and returns first element of matched html.Node.
 func FindOne(top *html.Node, expr string) *html.Node {
 	var elem *html.Node
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	if t.MoveNext() {
-		elem = (t.Current().(*htmlNodeNavigator)).curr
+		elem = (t.Current().(*NodeNavigator)).curr
 	}
 	return elem
 }
 
 // FindEach searches the html.Node and calls functions cb.
 func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
-	t := xpath.Select(CreateXPathNavigator(top), expr)
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	t := exp.Select(CreateXPathNavigator(top))
 	i := 0
 	for t.MoveNext() {
-		cb(i, (t.Current().(*htmlNodeNavigator)).curr)
+		cb(i, (t.Current().(*NodeNavigator)).curr)
 		i++
 	}
 }
@@ -118,12 +132,12 @@ func OutputHTML(n *html.Node, self bool) string {
 	return buf.String()
 }
 
-type htmlNodeNavigator struct {
+type NodeNavigator struct {
 	root, curr *html.Node
 	attr       int
 }
 
-func (h *htmlNodeNavigator) NodeType() xpath.NodeType {
+func (h *NodeNavigator) NodeType() xpath.NodeType {
 	switch h.curr.Type {
 	case html.CommentNode:
 		return xpath.CommentNode
@@ -143,18 +157,18 @@ func (h *htmlNodeNavigator) NodeType() xpath.NodeType {
 	panic(fmt.Sprintf("unknown HTML node type: %v", h.curr.Type))
 }
 
-func (h *htmlNodeNavigator) LocalName() string {
+func (h *NodeNavigator) LocalName() string {
 	if h.attr != -1 {
 		return h.curr.Attr[h.attr].Key
 	}
 	return h.curr.Data
 }
 
-func (*htmlNodeNavigator) Prefix() string {
+func (*NodeNavigator) Prefix() string {
 	return ""
 }
 
-func (h *htmlNodeNavigator) Value() string {
+func (h *NodeNavigator) Value() string {
 	switch h.curr.Type {
 	case html.CommentNode:
 		return h.curr.Data
@@ -169,16 +183,16 @@ func (h *htmlNodeNavigator) Value() string {
 	return ""
 }
 
-func (h *htmlNodeNavigator) Copy() xpath.NodeNavigator {
+func (h *NodeNavigator) Copy() xpath.NodeNavigator {
 	n := *h
 	return &n
 }
 
-func (h *htmlNodeNavigator) MoveToRoot() {
+func (h *NodeNavigator) MoveToRoot() {
 	h.curr = h.root
 }
 
-func (h *htmlNodeNavigator) MoveToParent() bool {
+func (h *NodeNavigator) MoveToParent() bool {
 	if node := h.curr.Parent; node != nil {
 		h.curr = node
 		return true
@@ -186,7 +200,7 @@ func (h *htmlNodeNavigator) MoveToParent() bool {
 	return false
 }
 
-func (h *htmlNodeNavigator) MoveToNextAttribute() bool {
+func (h *NodeNavigator) MoveToNextAttribute() bool {
 	if h.attr >= len(h.curr.Attr)-1 {
 		return false
 	}
@@ -194,7 +208,7 @@ func (h *htmlNodeNavigator) MoveToNextAttribute() bool {
 	return true
 }
 
-func (h *htmlNodeNavigator) MoveToChild() bool {
+func (h *NodeNavigator) MoveToChild() bool {
 	if node := h.curr.FirstChild; node != nil {
 		h.curr = node
 		return true
@@ -202,7 +216,7 @@ func (h *htmlNodeNavigator) MoveToChild() bool {
 	return false
 }
 
-func (h *htmlNodeNavigator) MoveToFirst() bool {
+func (h *NodeNavigator) MoveToFirst() bool {
 	if h.curr.PrevSibling == nil {
 		return false
 	}
@@ -216,11 +230,11 @@ func (h *htmlNodeNavigator) MoveToFirst() bool {
 	return true
 }
 
-func (h *htmlNodeNavigator) String() string {
+func (h *NodeNavigator) String() string {
 	return h.Value()
 }
 
-func (h *htmlNodeNavigator) MoveToNext() bool {
+func (h *NodeNavigator) MoveToNext() bool {
 	if node := h.curr.NextSibling; node != nil {
 		h.curr = node
 		return true
@@ -228,7 +242,7 @@ func (h *htmlNodeNavigator) MoveToNext() bool {
 	return false
 }
 
-func (h *htmlNodeNavigator) MoveToPrevious() bool {
+func (h *NodeNavigator) MoveToPrevious() bool {
 	if node := h.curr.PrevSibling; node != nil {
 		h.curr = node
 		return true
@@ -236,8 +250,8 @@ func (h *htmlNodeNavigator) MoveToPrevious() bool {
 	return false
 }
 
-func (h *htmlNodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
-	node, ok := other.(*htmlNodeNavigator)
+func (h *NodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
+	node, ok := other.(*NodeNavigator)
 	if !ok || node.root != h.root {
 		return false
 	}
