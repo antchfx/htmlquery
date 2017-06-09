@@ -1,1 +1,0 @@
-[FeedParser](https://github.com/zhengchun/feedparser) - parse Atom and RSS feeds.

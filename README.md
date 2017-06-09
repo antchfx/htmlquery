@@ -5,78 +5,73 @@ XQuery
 [![GoDoc](https://godoc.org/github.com/antchfx/xquery?status.svg)](https://godoc.org/github.com/antchfx/xquery)
 [![Go Report Card](https://goreportcard.com/badge/github.com/antchfx/xquery)](https://goreportcard.com/report/github.com/antchfx/xquery)
 
-A golang package, extract data from HTML and XML documents using XPath expression.
+A golang package, lets you extract data from HTML/XML documents using XPath expression.
 
-Supported most of XPath feature(syntax), you can found at [XPath](https://github.com/antchfx/xpath).
+List of supported XPath functions you can found at [XPath Package](https://github.com/antchfx/xpath).
 
-Installing
+Install
 ====
 
 > go get github.com/antchfx/xquery
 
-HTML Query
+HTML Query [![GoDoc](https://godoc.org/github.com/antchfx/xquery/html?status.svg)](https://godoc.org/github.com/antchfx/xquery/html)
 ===
 
-Extract data from HTML document using XPath.
-
-[![GoDoc](https://godoc.org/github.com/antchfx/xquery/html?status.svg)](https://godoc.org/github.com/antchfx/xquery/html)
+Extract data from HTML document.
 
 ```go
 package main
 
 import (
-    "github.com/antchfx/xquery/html"	
+	"github.com/antchfx/xpath"
+	"github.com/antchfx/xquery/html"
 )
 
 func main() {
-	s:=`<!DOCTYPE html>
-<html>
-<head>
-<title>Page Title</title>
-</head>
-<body>
-<h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
-</body>
-</html>`
-	root, err := htmlquery.Parse(strings.NewReader(s))
-	if err != nil {
-		panic(err)
+	f, _ := os.Open(`./examples/test.html`)
+	doc, _ := htmlquery.Parse(f)
+	expr := xpath.MustCompile("count(//div[@class='article'])")
+	fmt.Printf("%f \n", expr.Evaluate(htmlquery.CreateXPathNavigator(doc)).(float64))
+
+	expr = xpath.MustCompile("//a/@href")
+	iter := expr.Evaluate(htmlquery.CreateXPathNavigator(doc)).(*xpath.NodeIterator)
+	for iter.MoveNext() {
+		fmt.Printf("%s \n", iter.Current().Value()) // output href
 	}
-	node := htmlquery.FindOne(root, "//title")
-	fmt.Println(htmlquery.InnerText(node))	
+
+	for _, n := range htmlquery.Find(doc, "//a/@href") {
+		fmt.Printf("%s \n", htmlquery.SelectAttr(n, "href")) // output href
+	}
 }
 ```
 
-XML Query
+XML Query [![GoDoc](https://godoc.org/github.com/antchfx/xquery/xml?status.svg)](https://godoc.org/github.com/antchfx/xquery/xml)
 ===
-Extract data from XML document using XPath.
-
-[![GoDoc](https://godoc.org/github.com/antchfx/xquery/xml?status.svg)](https://godoc.org/github.com/antchfx/xquery/xml)
+Extract data from XML document.
 
 ```go
 package main
 
 import (
+	"github.com/antchfx/xpath"
 	"github.com/antchfx/xquery/xml"
 )
 
 func main() {
-	s:=`<?xml version="1.0" encoding="UTF-8"?>
-<bookstore>
-<book category="cooking">
-  <title lang="en">Everyday Italian</title>
-  <author>Giada De Laurentiis</author>
-  <year>2005</year>
-  <price>30.00</price>
-</book>
-......
-</bookstore>`
-	root, err := xmlquery.Parse(strings.NewReader(s))
+	f, _ := os.Open(`./examples/test.xml`)
+	doc, _ := xmlquery.Parse(f)
+	// sum all book's price via Evaluate()
+	expr, err := xpath.Compile("sum(//book/price)")
 	if err != nil {
 		panic(err)
 	}
-	node := xmlquery.FindOne(root, "//book[@category='cooking']")
-	fmt.Println(node.InnerText())
+	fmt.Printf("total price: %f\n", expr.Evaluate(xmlquery.CreateXPathNavigator(doc)).(float64))
+
+	for _, n := range xmlquery.Find(doc, "//book") {
+		fmt.Printf("%s : %s \n", n.SelectAttr("id"), xmlquery.FindOne(n, "title").InnerText())
+	}
+	
+	n := xmlquery.FindOne(doc, "//book[@id='bk104']")
+	fmt.Printf("%s \n", n.OutputXML(true))
 }
 ```
