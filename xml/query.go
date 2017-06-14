@@ -91,6 +91,10 @@ type NodeNavigator struct {
 	attr       int
 }
 
+func (x *NodeNavigator) Current() *Node {
+	return x.curr
+}
+
 func (x *NodeNavigator) NodeType() xpath.NodeType {
 	switch x.curr.Type {
 	case CommentNode:
