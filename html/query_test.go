@@ -9,7 +9,36 @@ import (
 	"golang.org/x/net/html"
 )
 
-var doc = loadHTML()
+const htmlSample = `<!DOCTYPE html><html lang="en-US">
+<head>
+<title>Hello,World!</title>
+</head>
+<body>
+<div class="container">
+<header>
+	<!-- Logo -->
+   <h1>City Gallery</h1>
+</header>  
+<nav>
+  <ul>
+    <li><a href="#">London</a></li>
+    <li><a href="#">Paris</a></li>
+    <li><a href="#">Tokyo</a></li>
+  </ul>
+</nav>
+<article>
+  <h1>London</h1>
+  <img src="pic_mountain.jpg" alt="Mountain View" style="width:304px;height:228px;">
+  <p>London is the capital city of England. It is the most populous city in the  United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+  <p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
+</article>
+<footer>Copyright &copy; W3Schools.com</footer>
+</div>
+</body>
+</html>
+`
+
+var doc = loadHTML(htmlSample)
 
 func TestHttpLoad(t *testing.T) {
 	doc, err := LoadURL("http://www.bing.com")
@@ -43,6 +72,7 @@ func TestNavigator(t *testing.T) {
 		t.Fatal("node not move to lang attribute")
 	}
 
+	nav.MoveToParent()
 	nav.MoveToFirst() // <!DOCTYPE html>
 	if nav.curr.Type != html.DoctypeNode {
 		t.Fatalf("expected node type is DoctypeNode,but got %d", nav.curr.Type)
@@ -71,35 +101,16 @@ func TestXPath(t *testing.T) {
 	}
 }
 
-func loadHTML() *html.Node {
-	var str = `<!DOCTYPE html><html lang="en-US">
-<head>
-<title>Hello,World!</title>
-</head>
-<body>
-<div class="container">
-<header>
-	<!-- Logo -->
-   <h1>City Gallery</h1>
-</header>  
-<nav>
-  <ul>
-    <li><a href="#">London</a></li>
-    <li><a href="#">Paris</a></li>
-    <li><a href="#">Tokyo</a></li>
-  </ul>
-</nav>
-<article>
-  <h1>London</h1>
-  <img src="pic_mountain.jpg" alt="Mountain View" style="width:304px;height:228px;">
-  <p>London is the capital city of England. It is the most populous city in the  United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
-  <p>Standing on the River Thames, London has been a major settlement for two millennia, its history going back to its founding by the Romans, who named it Londinium.</p>
-</article>
-<footer>Copyright &copy; W3Schools.com</footer>
-</div>
-</body>
-</html>
-`
+func TestXPathCdUp(t *testing.T) {
+	doc := loadHTML(`<html><b attr="1"></b></html>`)
+	node := FindOne(doc, "//b/@attr/..")
+	t.Logf("node = %#v", node)
+	if node == nil || node.Data != "b" {
+		t.Fatal("//b/@id/.. != <b></b>")
+	}
+}
+
+func loadHTML(str string) *html.Node {
 	node, err := Parse(strings.NewReader(str))
 	if err != nil {
 		panic(err)

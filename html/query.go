@@ -216,6 +216,9 @@ func (h *NodeNavigator) MoveToNextAttribute() bool {
 }
 
 func (h *NodeNavigator) MoveToChild() bool {
+	if h.attr != -1 {
+		return false
+	}
 	if node := h.curr.FirstChild; node != nil {
 		h.curr = node
 		return true
@@ -224,7 +227,7 @@ func (h *NodeNavigator) MoveToChild() bool {
 }
 
 func (h *NodeNavigator) MoveToFirst() bool {
-	if h.curr.PrevSibling == nil {
+	if h.attr != -1 || h.curr.PrevSibling == nil {
 		return false
 	}
 	for {
@@ -242,6 +245,9 @@ func (h *NodeNavigator) String() string {
 }
 
 func (h *NodeNavigator) MoveToNext() bool {
+	if h.attr != -1 {
+		return false
+	}
 	if node := h.curr.NextSibling; node != nil {
 		h.curr = node
 		return true
@@ -250,6 +256,9 @@ func (h *NodeNavigator) MoveToNext() bool {
 }
 
 func (h *NodeNavigator) MoveToPrevious() bool {
+	if h.attr != -1 {
+		return false
+	}
 	if node := h.curr.PrevSibling; node != nil {
 		h.curr = node
 		return true

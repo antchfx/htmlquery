@@ -5,64 +5,8 @@ import (
 	"testing"
 )
 
-var doc = loadXML()
-
-func TestXPath(t *testing.T) {
-	if list := Find(doc, "//book"); len(list) != 3 {
-		t.Fatal("count(//book) != 3")
-	}
-	if node := FindOne(doc, "//book[@id='bk101']"); node == nil {
-		t.Fatal("//book[@id='bk101] is not found")
-	}
-	if node := FindOne(doc, "//book[price>=44.95]"); node == nil {
-		t.Fatal("//book/price>=44.95 is not found")
-	}
-	if list := Find(doc, "//book[genre='Fantasy']"); len(list) != 2 {
-		t.Fatal("//book[genre='Fantasy'] items count is not equal 2")
-	}
-	var c int
-	FindEach(doc, "//book", func(i int, n *Node) {
-		c++
-	})
-	if c != len(Find(doc, "//book")) {
-		t.Fatal("count(//book) != 3")
-	}
-	node := FindOne(doc, "//book[1]")
-	if node.SelectAttr("id") != "bk101" {
-		t.Fatal("//book[1]/@id != bk101")
-	}
-}
-
-func TestNavigator(t *testing.T) {
-	nav := &NodeNavigator{curr: doc, root: doc, attr: -1}
-	nav.MoveToChild() // New Line
-	nav.MoveToNext()  // catalog
-	if nav.curr.Data != "catalog" {
-		t.Fatal("current node name != `catalog`")
-	}
-	nav.MoveToChild() // New Line
-	nav.MoveToNext()  // comment node
-	if nav.curr.Type != CommentNode {
-		t.Fatal("node type not CommentNode")
-	}
-	nav.Value()
-	nav.MoveToNext() // New Line
-	nav.MoveToNext() //book
-	nav.MoveToChild()
-	nav.MoveToNext() // book/author
-	if nav.LocalName() != "author" {
-		t.Fatalf("node error")
-	}
-	nav.MoveToParent() // book
-	nav.MoveToNext()   // next book
-	if nav.curr.SelectAttr("id") != "bk102" {
-		t.Fatal("node error")
-	}
-}
-
-func loadXML() *Node {
-	// https://msdn.microsoft.com/en-us/library/ms762271(v=vs.85).aspx
-	s := `
+// https://msdn.microsoft.com/en-us/library/ms762271(v=vs.85).aspx
+const xmlDoc = `
     <?xml version="1.0"?>
 <catalog>
    <!-- book list-->
@@ -96,6 +40,72 @@ func loadXML() *Node {
       foundation for a new society.</description>
    </book>
 </catalog>`
+
+var doc = loadXML(xmlDoc)
+
+func TestXPath(t *testing.T) {
+	if list := Find(doc, "//book"); len(list) != 3 {
+		t.Fatal("count(//book) != 3")
+	}
+	if node := FindOne(doc, "//book[@id='bk101']"); node == nil {
+		t.Fatal("//book[@id='bk101] is not found")
+	}
+	if node := FindOne(doc, "//book[price>=44.95]"); node == nil {
+		t.Fatal("//book/price>=44.95 is not found")
+	}
+	if list := Find(doc, "//book[genre='Fantasy']"); len(list) != 2 {
+		t.Fatal("//book[genre='Fantasy'] items count is not equal 2")
+	}
+	var c int
+	FindEach(doc, "//book", func(i int, n *Node) {
+		c++
+	})
+	if c != len(Find(doc, "//book")) {
+		t.Fatal("count(//book) != 3")
+	}
+	node := FindOne(doc, "//book[1]")
+	if node.SelectAttr("id") != "bk101" {
+		t.Fatal("//book[1]/@id != bk101")
+	}
+}
+
+func TestXPathCdUp(t *testing.T) {
+	doc := loadXML(`<a><b attr="1"/></a>`)
+	node := FindOne(doc, "/a/b/@attr/..")
+	t.Logf("node = %#v", node)
+	if node == nil || node.Data != "b" {
+		t.Fatal("//b/@id/.. != <b/>")
+	}
+}
+
+func TestNavigator(t *testing.T) {
+	nav := &NodeNavigator{curr: doc, root: doc, attr: -1}
+	nav.MoveToChild() // New Line
+	nav.MoveToNext()  // catalog
+	if nav.curr.Data != "catalog" {
+		t.Fatal("current node name != `catalog`")
+	}
+	nav.MoveToChild() // New Line
+	nav.MoveToNext()  // comment node
+	if nav.curr.Type != CommentNode {
+		t.Fatal("node type not CommentNode")
+	}
+	nav.Value()
+	nav.MoveToNext() // New Line
+	nav.MoveToNext() //book
+	nav.MoveToChild()
+	nav.MoveToNext() // book/author
+	if nav.LocalName() != "author" {
+		t.Fatalf("node error")
+	}
+	nav.MoveToParent() // book
+	nav.MoveToNext()   // next book
+	if nav.curr.SelectAttr("id") != "bk102" {
+		t.Fatal("node error")
+	}
+}
+
+func loadXML(s string) *Node {
 	node, err := ParseXML(strings.NewReader(s))
 	if err != nil {
 		panic(err)
