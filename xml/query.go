@@ -149,7 +149,10 @@ func (x *NodeNavigator) MoveToRoot() {
 }
 
 func (x *NodeNavigator) MoveToParent() bool {
-	if node := x.curr.Parent; node != nil {
+	if x.attr != -1 {
+		x.attr = -1
+		return true
+	} else if node := x.curr.Parent; node != nil {
 		x.curr = node
 		return true
 	}

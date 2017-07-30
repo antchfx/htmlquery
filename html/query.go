@@ -197,7 +197,10 @@ func (h *NodeNavigator) MoveToRoot() {
 }
 
 func (h *NodeNavigator) MoveToParent() bool {
-	if node := h.curr.Parent; node != nil {
+	if h.attr != -1 {
+		h.attr = -1
+		return true
+	} else if node := h.curr.Parent; node != nil {
 		h.curr = node
 		return true
 	}
