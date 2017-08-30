@@ -245,8 +245,3 @@ quit:
 func Parse(r io.Reader) (*Node, error) {
 	return parse(r)
 }
-
-// ParseXML returns the parse tree for the XML from the given Reader.Deprecated.
-func ParseXML(r io.Reader) (*Node, error) {
-	return parse(r)
-}
