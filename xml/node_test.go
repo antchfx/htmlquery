@@ -137,7 +137,7 @@ func TestParse(t *testing.T) {
   <price>39.95</price>
 </book>
 </bookstore>`
-	root, err := ParseXML(strings.NewReader(s))
+	root, err := Parse(strings.NewReader(s))
 	if err != nil {
 		t.Error(err)
 	}
@@ -216,7 +216,7 @@ func TestTooNested(t *testing.T) {
             </DDD> 
         </CCC> 		
      </AAA>`
-	root, err := ParseXML(strings.NewReader(s))
+	root, err := Parse(strings.NewReader(s))
 	if err != nil {
 		t.Error(err)
 	}
@@ -248,7 +248,7 @@ func TestSelectElement(t *testing.T) {
             <DDD/>
         </CCC> 
      </AAA>`
-	root, err := ParseXML(strings.NewReader(s))
+	root, err := Parse(strings.NewReader(s))
 	if err != nil {
 		t.Error(err)
 	}

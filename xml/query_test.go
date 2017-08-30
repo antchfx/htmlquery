@@ -106,7 +106,7 @@ func TestNavigator(t *testing.T) {
 }
 
 func loadXML(s string) *Node {
-	node, err := ParseXML(strings.NewReader(s))
+	node, err := Parse(strings.NewReader(s))
 	if err != nil {
 		panic(err)
 	}
