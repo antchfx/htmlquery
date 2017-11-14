@@ -69,7 +69,12 @@ func outputXML(buf *bytes.Buffer, n *Node) {
 		buf.WriteString(strings.TrimSpace(n.Data))
 		return
 	}
-	buf.WriteString("<" + n.Data)
+	if n.Type == DeclarationNode {
+		buf.WriteString("<?" + n.Data)
+	} else {
+		buf.WriteString("<" + n.Data)
+	}
+
 	for _, attr := range n.Attr {
 		if attr.Name.Space != "" {
 			buf.WriteString(fmt.Sprintf(` %s:%s="%s"`, attr.Name.Space, attr.Name.Local, attr.Value))
@@ -77,11 +82,17 @@ func outputXML(buf *bytes.Buffer, n *Node) {
 			buf.WriteString(fmt.Sprintf(` %s="%s"`, attr.Name.Local, attr.Value))
 		}
 	}
-	buf.WriteString(">")
+	if n.Type == DeclarationNode {
+		buf.WriteString("?>")
+	} else {
+		buf.WriteString(">")
+	}
 	for child := n.FirstChild; child != nil; child = child.NextSibling {
 		outputXML(buf, child)
 	}
-	buf.WriteString(fmt.Sprintf("</%s>", n.Data))
+	if n.Type != DeclarationNode {
+		buf.WriteString(fmt.Sprintf("</%s>", n.Data))
+	}
 }
 
 // OutputXML returns the text that including tags name.
