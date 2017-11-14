@@ -81,7 +81,8 @@ func TestXPathCdUp(t *testing.T) {
 func TestNavigator(t *testing.T) {
 	nav := &NodeNavigator{curr: doc, root: doc, attr: -1}
 	nav.MoveToChild() // New Line
-	nav.MoveToNext()  // catalog
+	nav.MoveToNext()
+	nav.MoveToNext() // catalog
 	if nav.curr.Data != "catalog" {
 		t.Fatal("current node name != `catalog`")
 	}

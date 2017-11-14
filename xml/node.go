@@ -139,6 +139,9 @@ func addChild(parent, n *Node) {
 }
 
 func addSibling(sibling, n *Node) {
+	for t := sibling.NextSibling; t != nil; t = t.NextSibling {
+		sibling = t
+	}
 	n.Parent = sibling.Parent
 	sibling.NextSibling = n
 	n.PrevSibling = sibling
