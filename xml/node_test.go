@@ -273,3 +273,7 @@ func TestSelectElement(t *testing.T) {
 		t.Fatalf("len(ns)!=2")
 	}
 }
+
+func TestEscapeOutputValue(t *testing.T) {
+	data := `<AAA><*></AAA>`
+}
