@@ -275,5 +275,16 @@ func TestSelectElement(t *testing.T) {
 }
 
 func TestEscapeOutputValue(t *testing.T) {
-	data := `<AAA><*></AAA>`
+	data := `<AAA>&lt;*&gt;</AAA>`
+
+	root, err := Parse(strings.NewReader(data))
+	if err != nil {
+		t.Error(err)
+	}
+
+	escapedInnerText := root.OutputXML(true)
+	if !strings.Contains(escapedInnerText, "&lt;*&gt;") {
+		t.Fatal("Inner Text has not been escaped")
+	}
+
 }
