@@ -1,15 +1,21 @@
-XQuery
+xquery
 ====
 [![Build Status](https://travis-ci.org/antchfx/xquery.svg?branch=master)](https://travis-ci.org/antchfx/xquery)
 [![Coverage Status](https://coveralls.io/repos/github/antchfx/xquery/badge.svg?branch=master)](https://coveralls.io/github/antchfx/xquery?branch=master)
 [![GoDoc](https://godoc.org/github.com/antchfx/xquery?status.svg)](https://godoc.org/github.com/antchfx/xquery)
 [![Go Report Card](https://goreportcard.com/badge/github.com/antchfx/xquery)](https://goreportcard.com/report/github.com/antchfx/xquery)
 
-A golang package, lets you extract data from HTML/XML documents using XPath expression.
+Golang package, lets you extract data from HTML/XML documents using XPath expression.
 
 List of supported XPath functions you can found here [XPath Package](https://github.com/antchfx/xpath).
 
-Install
+Packages of xquery
+====
+[htmlquery](https://github.com/antchfx/xquery#html-query-) - for HTML documents.
+
+[xmlquery](https://github.com/antchfx/xquery#xml-query-) - for XML documents.
+
+Installation
 ====
 
 > go get github.com/antchfx/xquery
