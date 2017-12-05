@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/antchfx/xquery/html"
+	"github.com/antchfx/htmlquery"
 	"golang.org/x/net/html"
 )
 

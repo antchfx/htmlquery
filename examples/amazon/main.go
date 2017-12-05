@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/antchfx/xquery/html"
+	"github.com/antchfx/htmlquery"
 )
 
 func main() {
