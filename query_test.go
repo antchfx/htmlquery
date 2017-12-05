@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/antchfx/xpath"
-
 	"golang.org/x/net/html"
 )
 
