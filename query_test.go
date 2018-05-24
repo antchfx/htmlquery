@@ -1,7 +1,6 @@
 package htmlquery
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -39,18 +38,6 @@ const htmlSample = `<!DOCTYPE html><html lang="en-US">
 `
 
 var testDoc = loadHTML(htmlSample)
-
-func ExampleQuery() {
-	doc, err := LoadURL("https://www.bing.com/search?q=golang")
-	if err != nil {
-		panic(err)
-	}
-	// Find all news item.
-	for i, n := range Find(doc, "//ol/li") {
-		n2 := FindOne(n, "//a")
-		fmt.Println("%d %s(%s)", i, InnerText(n2), SelectAttr(n2, "href"))
-	}
-}
 
 func TestHttpLoad(t *testing.T) {
 	doc, err := LoadURL("http://www.bing.com")
