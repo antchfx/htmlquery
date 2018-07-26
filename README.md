@@ -84,4 +84,4 @@ List of supported XPath query packages
 
 Questions
 ===
-If you have any questions, create an issue and welcome to contribute.
+Please let me know if you have any questions.
