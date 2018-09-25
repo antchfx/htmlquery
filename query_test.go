@@ -20,9 +20,9 @@ const htmlSample = `<!DOCTYPE html><html lang="en-US">
 </header>  
 <nav>
   <ul>
-    <li><a href="#">London</a></li>
-    <li><a href="#">Paris</a></li>
-    <li><a href="#">Tokyo</a></li>
+    <li><a href="/London">London</a></li>
+    <li><a href="/Paris">Paris</a></li>
+    <li><a href="/Tokyo">Tokyo</a></li>
   </ul>
 </nav>
 <article>
@@ -55,7 +55,7 @@ func TestNavigator(t *testing.T) {
 	nav.MoveToChild() // HEAD
 	nav.MoveToNext()
 	if nav.NodeType() != xpath.TextNode {
-		t.Fatalf("expectd node type is TextNode,but got %s", nav.NodeType())
+		t.Fatalf("expectd node type is TextNode,but got %vs", nav.NodeType())
 	}
 	nav.MoveToNext() // <BODY>
 	if nav.Value() != InnerText(FindOne(testDoc, "//body")) {
@@ -98,6 +98,14 @@ func TestXPath(t *testing.T) {
 	if strings.Index(OutputHTML(node, true), "Logo") == -1 {
 		t.Fatal("OutputHTML() shoud have comment node text")
 	}
+	link := FindOne(testDoc, "//a[1]/@href")
+	if link == nil {
+		t.Fatal("link is nil")
+	}
+	if v := InnerText(link); v != "/London" {
+		t.Fatalf("expect value is /London, but got %s", v)
+	}
+
 }
 
 func TestXPathCdUp(t *testing.T) {

@@ -37,7 +37,13 @@ doc, err := htmlquery.Parse(strings.NewReader(s))
 list := htmlquery.Find(doc, "//a")
 ```
 
-#### Find all A elements with href attribute.
+#### Find all A elements that have `href` attribute.
+
+```go
+list := range htmlquery.Find(doc, "//a[@href]")	
+```
+
+#### Find all A elements and only get `href` attribute self.
 
 ```go
 list := range htmlquery.Find(doc, "//a/@href")	

@@ -30,7 +30,7 @@ func Find(top *html.Node, expr string) []*html.Node {
 	}
 	t := exp.Select(CreateXPathNavigator(top))
 	for t.MoveNext() {
-		elems = append(elems, (t.Current().(*NodeNavigator)).curr)
+		elems = append(elems, getCurrentNode(t))
 	}
 	return elems
 }
@@ -45,7 +45,7 @@ func FindOne(top *html.Node, expr string) *html.Node {
 	}
 	t := exp.Select(CreateXPathNavigator(top))
 	if t.MoveNext() {
-		elem = (t.Current().(*NodeNavigator)).curr
+		elem = getCurrentNode(t)
 	}
 	return elem
 }
@@ -59,7 +59,7 @@ func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
 	t := exp.Select(CreateXPathNavigator(top))
 	i := 0
 	for t.MoveNext() {
-		cb(i, (t.Current().(*NodeNavigator)).curr)
+		cb(i, getCurrentNode(t))
 		i++
 	}
 }
@@ -77,6 +77,24 @@ func LoadURL(url string) (*html.Node, error) {
 		return nil, err
 	}
 	return html.Parse(r)
+}
+
+func getCurrentNode(it *xpath.NodeIterator) *html.Node {
+	n := it.Current().(*NodeNavigator)
+	if n.NodeType() == xpath.AttributeNode {
+		childNode := &html.Node{
+			Type: html.TextNode,
+			Data: n.Value(),
+		}
+		return &html.Node{
+			Type:       html.ElementNode,
+			Data:       n.LocalName(),
+			FirstChild: childNode,
+			LastChild:  childNode,
+		}
+
+	}
+	return n.curr
 }
 
 // Parse returns the parse tree for the HTML from the given Reader.
@@ -109,6 +127,9 @@ func InnerText(n *html.Node) string {
 func SelectAttr(n *html.Node, name string) (val string) {
 	if n == nil {
 		return
+	}
+	if n.Type == html.ElementNode && n.Parent == nil && name == n.Data {
+		return InnerText(n)
 	}
 	for _, attr := range n.Attr {
 		if attr.Key == name {
