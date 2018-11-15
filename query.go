@@ -73,9 +73,9 @@ func FindEachWithBreak(top *html.Node, expr string, cb func(int, *html.Node) boo
 	}
 	t := exp.Select(CreateXPathNavigator(top))
 	i := 0
-	stop := false
-	for t.MoveNext() && !stop {
-		stop = cb(i, getCurrentNode(t))
+	cont := true
+	for t.MoveNext() && cont {
+		cont = cb(i, getCurrentNode(t))
 		i++
 	}
 }
