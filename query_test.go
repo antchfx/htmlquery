@@ -1,6 +1,9 @@
 package htmlquery
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -39,13 +42,15 @@ const htmlSample = `<!DOCTYPE html><html lang="en-US">
 
 var testDoc = loadHTML(htmlSample)
 
-func TestHttpLoad(t *testing.T) {
-	doc, err := LoadURL("http://www.bing.com")
+func TestLoadURL(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, htmlSample)
+	}))
+	defer ts.Close()
+
+	_, err := LoadURL(ts.URL)
 	if err != nil {
 		t.Fatal(err)
-	}
-	if doc == nil {
-		t.Fatal("doc is nil")
 	}
 }
 
