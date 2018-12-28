@@ -10,6 +10,12 @@ Overview
 
 htmlquery is an XPath query package for HTML, lets you extract data or evaluate from HTML documents by an XPath expression.
 
+Changelogs
+===
+
+2018-12-28
+- Avoid adding duplicate elements to list for `Find()` method. [#6](https://github.com/antchfx/htmlquery/issues/6)
+
 Installation
 ====
 
