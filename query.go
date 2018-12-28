@@ -23,14 +23,21 @@ func CreateXPathNavigator(top *html.Node) *NodeNavigator {
 
 // Find searches the html.Node that matches by the specified XPath expr.
 func Find(top *html.Node, expr string) []*html.Node {
-	var elems []*html.Node
 	exp, err := xpath.Compile(expr)
 	if err != nil {
 		panic(err)
 	}
+	var elems []*html.Node
 	t := exp.Select(CreateXPathNavigator(top))
 	for t.MoveNext() {
-		elems = append(elems, getCurrentNode(t))
+		nav := t.Current().(*NodeNavigator)
+		n := getCurrentNode(nav)
+		// avoid adding duplicate nodes.
+		if len(elems) > 0 && (elems[0] == n || (nav.NodeType() == xpath.AttributeNode &&
+			nav.LocalName() == elems[0].Data && nav.Value() == InnerText(elems[0]))) {
+			continue
+		}
+		elems = append(elems, n)
 	}
 	return elems
 }
@@ -45,7 +52,7 @@ func FindOne(top *html.Node, expr string) *html.Node {
 	}
 	t := exp.Select(CreateXPathNavigator(top))
 	if t.MoveNext() {
-		elem = getCurrentNode(t)
+		elem = getCurrentNode(t.Current().(*NodeNavigator))
 	}
 	return elem
 }
@@ -59,7 +66,7 @@ func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
 	t := exp.Select(CreateXPathNavigator(top))
 	i := 0
 	for t.MoveNext() {
-		cb(i, getCurrentNode(t))
+		cb(i, getCurrentNode(t.Current().(*NodeNavigator)))
 		i++
 	}
 }
@@ -75,7 +82,7 @@ func FindEachWithBreak(top *html.Node, expr string, cb func(int, *html.Node) boo
 	i := 0
 	cont := true
 	for t.MoveNext() && cont {
-		cont = cb(i, getCurrentNode(t))
+		cont = cb(i, getCurrentNode(t.Current().(*NodeNavigator)))
 		i++
 	}
 }
@@ -95,8 +102,7 @@ func LoadURL(url string) (*html.Node, error) {
 	return html.Parse(r)
 }
 
-func getCurrentNode(it *xpath.NodeIterator) *html.Node {
-	n := it.Current().(*NodeNavigator)
+func getCurrentNode(n *NodeNavigator) *html.Node {
 	if n.NodeType() == xpath.AttributeNode {
 		childNode := &html.Node{
 			Type: html.TextNode,
