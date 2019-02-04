@@ -57,36 +57,6 @@ func FindOne(top *html.Node, expr string) *html.Node {
 	return elem
 }
 
-// FindEach searches the html.Node and calls functions cb.
-func FindEach(top *html.Node, expr string, cb func(int, *html.Node)) {
-	exp, err := xpath.Compile(expr)
-	if err != nil {
-		panic(err)
-	}
-	t := exp.Select(CreateXPathNavigator(top))
-	i := 0
-	for t.MoveNext() {
-		cb(i, getCurrentNode(t.Current().(*NodeNavigator)))
-		i++
-	}
-}
-
-// FindEachWithBreak works exactly like FindEach but allows you
-// to break the loop by returning false in the the callback function cb.
-func FindEachWithBreak(top *html.Node, expr string, cb func(int, *html.Node) bool) {
-	exp, err := xpath.Compile(expr)
-	if err != nil {
-		panic(err)
-	}
-	t := exp.Select(CreateXPathNavigator(top))
-	i := 0
-	cont := true
-	for t.MoveNext() && cont {
-		cont = cb(i, getCurrentNode(t.Current().(*NodeNavigator)))
-		i++
-	}
-}
-
 // LoadURL loads the HTML document from the specified URL.
 func LoadURL(url string) (*html.Node, error) {
 	resp, err := http.Get(url)

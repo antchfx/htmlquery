@@ -13,6 +13,9 @@ htmlquery is an XPath query package for HTML, lets you extract data or evaluate 
 Changelogs
 ===
 
+2019-02-04
+- [#7](https://github.com/antchfx/htmlquery/issues/7) Removed deprecated `FindEach()` and `FindEachWithBreak()` methods.
+
 2018-12-28
 - Avoid adding duplicate elements to list for `Find()` method. [#6](https://github.com/antchfx/htmlquery/issues/6)
 

@@ -89,25 +89,6 @@ func TestXPath(t *testing.T) {
 		t.Fatal("//html[@lang] != en-Us")
 	}
 
-	var c int
-	FindEach(testDoc, "//li", func(i int, node *html.Node) {
-		c++
-	})
-	l := len(Find(testDoc, "//li"))
-	if c != l {
-		t.Fatal("li node count != 3")
-	}
-	c = 0
-	FindEachWithBreak(testDoc, "//li", func(i int, node *html.Node) bool {
-		if c == l - 1 {
-			return false
-		}
-		c++
-		return true
-	})
-	if c != l - 1 {
-		t.Fatal("FindEachWithBreak failed to stop early")
-	}
 	node = FindOne(testDoc, "//header")
 	if strings.Index(InnerText(node), "Logo") > 0 {
 		t.Fatal("InnerText() have comment node text")
