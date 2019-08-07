@@ -1,4 +1,4 @@
-module github.com/antchfx/htmlquery
+module github.com/Kangaroux/htmlquery
 
 go 1.12
 
