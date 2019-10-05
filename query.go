@@ -21,14 +21,63 @@ func CreateXPathNavigator(top *html.Node) *NodeNavigator {
 	return &NodeNavigator{curr: top, root: top, attr: -1}
 }
 
-// Find searches the html.Node that matches by the specified XPath expr.
+// Find is like QueryAll but Will panics if the expression `expr` cannot be parsed.
+//
+// See `QueryAll()` function.
 func Find(top *html.Node, expr string) []*html.Node {
 	exp, err := xpath.Compile(expr)
 	if err != nil {
 		panic(err)
 	}
+	return QuerySelectorAll(top, exp)
+}
+
+// FindOne is like Query but will panics if the expression `expr` cannot be parsed.
+// See `Query()` function.
+func FindOne(top *html.Node, expr string) *html.Node {
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		panic(err)
+	}
+	return QuerySelector(top, exp)
+}
+
+// QueryAll searches the html.Node that matches by the specified XPath expr.
+// Return an error if the expression `expr` cannot be parsed.
+func QueryAll(top *html.Node, expr string) ([]*html.Node, error) {
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		return nil, err
+	}
+	nodes := QuerySelectorAll(top, exp)
+	return nodes, nil
+}
+
+// Query searches the html.Node that matches by the specified XPath expr,
+// and return the first element of matched html.Node.
+//
+// Return an error if the expression `expr` cannot be parsed.
+func Query(top *html.Node, expr string) (*html.Node, error) {
+	exp, err := xpath.Compile(expr)
+	if err != nil {
+		return nil, err
+	}
+	return QuerySelector(top, exp), nil
+}
+
+// QuerySelector returns the first matched html.Node by the specified XPath selector.
+func QuerySelector(top *html.Node, selector *xpath.Expr) *html.Node {
+	t := selector.Select(CreateXPathNavigator(top))
+	if t.MoveNext() {
+		return getCurrentNode(t.Current().(*NodeNavigator))
+	}
+	return nil
+}
+
+// QuerySelectorAll searches all of the html.Node that matches the specified XPath selectors.
+func QuerySelectorAll(top *html.Node, selector *xpath.Expr) []*html.Node {
 	var elems []*html.Node
-	t := exp.Select(CreateXPathNavigator(top))
+	t := selector.Select(CreateXPathNavigator(top))
 	for t.MoveNext() {
 		nav := t.Current().(*NodeNavigator)
 		n := getCurrentNode(nav)
@@ -40,21 +89,6 @@ func Find(top *html.Node, expr string) []*html.Node {
 		elems = append(elems, n)
 	}
 	return elems
-}
-
-// FindOne searches the html.Node that matches by the specified XPath expr,
-// and returns first element of matched html.Node.
-func FindOne(top *html.Node, expr string) *html.Node {
-	var elem *html.Node
-	exp, err := xpath.Compile(expr)
-	if err != nil {
-		panic(err)
-	}
-	t := exp.Select(CreateXPathNavigator(top))
-	if t.MoveNext() {
-		elem = getCurrentNode(t.Current().(*NodeNavigator))
-	}
-	return elem
 }
 
 // LoadURL loads the HTML document from the specified URL.

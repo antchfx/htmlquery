@@ -10,15 +10,6 @@ Overview
 
 htmlquery is an XPath query package for HTML, lets you extract data or evaluate from HTML documents by an XPath expression.
 
-Changelogs
-===
-
-2019-02-04
-- [#7](https://github.com/antchfx/htmlquery/issues/7) Removed deprecated `FindEach()` and `FindEachWithBreak()` methods.
-
-2018-12-28
-- Avoid adding duplicate elements to list for `Find()` method. [#6](https://github.com/antchfx/htmlquery/issues/6)
-
 Installation
 ====
 
@@ -26,6 +17,15 @@ Installation
 
 Getting Started
 ====
+
+#### Query, returns matched elements or error.
+
+```go
+nodes, err := htmlquery.QueryAll(doc, "//a")
+if err != nil {
+	panic(`not a valid XPath expression.`)
+}
+```
 
 #### Load HTML document from URL.
 
@@ -72,7 +72,20 @@ v := expr.Evaluate(htmlquery.CreateXPathNavigator(doc)).(float64)
 fmt.Printf("total count is %f", v)
 ```
 
-Quick Tutorial
+Changelogs
+===
+
+2019-10-05 
+- Add new methods that compatible with invalid XPath expression error: `QueryAll` and `Query`.
+- Add `QuerySelector` and `QuerySelectorAll` methods, supported reused your query object.
+
+2019-02-04
+- [#7](https://github.com/antchfx/htmlquery/issues/7) Removed deprecated `FindEach()` and `FindEachWithBreak()` methods.
+
+2018-12-28
+- Avoid adding duplicate elements to list for `Find()` method. [#6](https://github.com/antchfx/htmlquery/issues/6)
+
+Tutorial
 ===
 
 ```go
@@ -82,12 +95,30 @@ func main() {
 		panic(err)
 	}
 	// Find all news item.
-	for i, n := range htmlquery.Find(doc, "//ol/li") {
+	list, err := htmlquery.QueryAll(doc, "//ol/li")
+	if err != nil {
+		panic(err)
+	}
+	for i, n := range list {
 		a := htmlquery.FindOne(n, "//a")
 		fmt.Printf("%d %s(%s)\n", i, htmlquery.InnerText(a), htmlquery.SelectAttr(a, "href"))
 	}
 }
 ```
+
+FAQ
+====
+
+#### `Find()` vs `QueryAll()`, which is better?
+
+`Find` and `QueryAll` both do the same things, searches all of matched html nodes.
+The `Find` will panics if you give an error XPath query, but `QueryAll` will return an error for you.
+
+#### Can I save my query expression object for the next query?
+
+Yes, you can. We offer the `QuerySelector` and `QuerySelectorAll` methods, It will accept your query expression object.
+
+Cache a query expression object(or reused) will avoid re-compile XPath query expression, improve your query performance.
 
 List of supported XPath query packages
 ===
