@@ -25,21 +25,21 @@ func CreateXPathNavigator(top *html.Node) *NodeNavigator {
 //
 // See `QueryAll()` function.
 func Find(top *html.Node, expr string) []*html.Node {
-	exp, err := xpath.Compile(expr)
+	nodes, err := QueryAll(top, expr)
 	if err != nil {
 		panic(err)
 	}
-	return QuerySelectorAll(top, exp)
+	return nodes
 }
 
 // FindOne is like Query but will panics if the expression `expr` cannot be parsed.
 // See `Query()` function.
 func FindOne(top *html.Node, expr string) *html.Node {
-	exp, err := xpath.Compile(expr)
+	node, err := Query(top, expr)
 	if err != nil {
 		panic(err)
 	}
-	return QuerySelector(top, exp)
+	return node
 }
 
 // QueryAll searches the html.Node that matches by the specified XPath expr.
