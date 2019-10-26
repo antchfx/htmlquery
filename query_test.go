@@ -2,8 +2,10 @@ package htmlquery
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -50,6 +52,24 @@ func TestLoadURL(t *testing.T) {
 
 	_, err := LoadURL(ts.URL)
 	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadDoc(t *testing.T) {
+	tempHTMLdoc, err := ioutil.TempFile("", "sample_*.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tempHTMLFilename := tempHTMLdoc.Name()
+	defer func(tempHTMLdoc *os.File, filename string) {
+		tempHTMLdoc.Close()
+		os.Remove(filename)
+	}(tempHTMLdoc, tempHTMLFilename)
+
+	tempHTMLdoc.Write([]byte(htmlSample))
+
+	if _, err := LoadDoc(tempHTMLFilename); err != nil {
 		t.Fatal(err)
 	}
 }
