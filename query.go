@@ -4,10 +4,12 @@ Package htmlquery provides extract data from HTML documents using XPath expressi
 package htmlquery
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
@@ -104,6 +106,17 @@ func LoadURL(url string) (*html.Node, error) {
 		return nil, err
 	}
 	return html.Parse(r)
+}
+
+// LoadDoc loads the HTML document from the specified file path.
+func LoadDoc(path string) (*html.Node, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return html.Parse(bufio.NewReader(f))
 }
 
 func getCurrentNode(n *NodeNavigator) *html.Node {
