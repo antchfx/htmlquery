@@ -33,6 +33,13 @@ if err != nil {
 doc, err := htmlquery.LoadURL("http://example.com/")
 ```
 
+#### Load HTML from document.
+
+```go
+filePath := "/home/user/sample.html"
+doc, err := htmlquery.LoadDoc(filePath)
+```
+
 #### Load HTML document from string.
 
 ```go
@@ -122,11 +129,11 @@ Cache a query expression object(or reused) will avoid re-compile XPath query exp
 
 List of supported XPath query packages
 ===
-|Name |Description |
-|--------------------------|----------------|
-|[htmlquery](https://github.com/antchfx/htmlquery) | XPath query package for the HTML document|
-|[xmlquery](https://github.com/antchfx/xmlquery) | XPath query package for the XML document|
-|[jsonquery](https://github.com/antchfx/jsonquery) | XPath query package for the JSON document|
+| Name                                              | Description                               |
+| ------------------------------------------------- | ----------------------------------------- |
+| [htmlquery](https://github.com/antchfx/htmlquery) | XPath query package for the HTML document |
+| [xmlquery](https://github.com/antchfx/xmlquery)   | XPath query package for the XML document  |
+| [jsonquery](https://github.com/antchfx/jsonquery) | XPath query package for the JSON document |
 
 Questions
 ===
