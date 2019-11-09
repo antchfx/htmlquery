@@ -44,6 +44,29 @@ const htmlSample = `<!DOCTYPE html><html lang="en-US">
 
 var testDoc = loadHTML(htmlSample)
 
+func BenchmarkSelectorCache(b *testing.B) {
+	DisableSelectorCache = false
+	for i := 0; i < b.N; i++ {
+		getQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
+	}
+}
+
+func BenchmarkDisableSelectorCache(b *testing.B) {
+	DisableSelectorCache = true
+	for i := 0; i < b.N; i++ {
+		getQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
+	}
+}
+
+func TestSelectorCache(t *testing.T) {
+	SelectorCacheMaxEntries = 2
+	for i := 1; i <= 3; i++ {
+		getQuery(fmt.Sprintf("//a[position()=%d]", i))
+	}
+	getQuery("//a[position()=3]")
+
+}
+
 func TestLoadURL(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, htmlSample)

@@ -8,12 +8,16 @@ htmlquery
 Overview
 ====
 
-htmlquery is an XPath query package for HTML, lets you extract data or evaluate from HTML documents by an XPath expression.
+`htmlquery` is an XPath query package for HTML, lets you extract data or evaluate from HTML documents by an XPath expression.
+
+`htmlquery` build-in the query object caching feature based on [LRU](https://godoc.org/github.com/golang/groupcache/lru), this feature will caching the recently used XPATH query string. enable caching can avoid re-compile XPath expression each query. 
 
 Installation
 ====
 
-> $ go get github.com/antchfx/htmlquery
+```
+go get github.com/antchfx/htmlquery
+```
 
 Getting Started
 ====
@@ -59,10 +63,13 @@ list := htmlquery.Find(doc, "//a")
 list := range htmlquery.Find(doc, "//a[@href]")	
 ```
 
-#### Find all A elements and only get `href` attribute self.
+#### Find all A elements with `href` attribute and only return `href` value.
 
 ```go
 list := range htmlquery.Find(doc, "//a/@href")	
+for n := range list{
+	fmt.Println(htmlquery.InnerText(n)) // output @href value without A element.
+}
 ```
 
 ### Find the third A element.
@@ -79,8 +86,33 @@ v := expr.Evaluate(htmlquery.CreateXPathNavigator(doc)).(float64)
 fmt.Printf("total count is %f", v)
 ```
 
+
+FAQ
+====
+
+#### `Find()` vs `QueryAll()`, which is better?
+
+`Find` and `QueryAll` both do the same things, searches all of matched html nodes.
+The `Find` will panics if you give an error XPath query, but `QueryAll` will return an error for you.
+
+#### Can I save my query expression object for the next query?
+
+Yes, you can. We offer the `QuerySelector` and `QuerySelectorAll` methods, It will accept your query expression object.
+
+Cache a query expression object(or reused) will avoid re-compile XPath query expression, improve your query performance.
+
+#### Disable caching feature
+
+```
+htmlquery.DisableSelectorCache = true
+```
+
 Changelogs
 ===
+
+2019-11-19 
+- Add built-in query object cache feature, avoid re-compilation for the same query string. [#16](https://github.com/antchfx/htmlquery/issues/16)
+- Added LoadDoc [18](https://github.com/antchfx/htmlquery/pull/18)
 
 2019-10-05 
 - Add new methods that compatible with invalid XPath expression error: `QueryAll` and `Query`.
@@ -112,20 +144,6 @@ func main() {
 	}
 }
 ```
-
-FAQ
-====
-
-#### `Find()` vs `QueryAll()`, which is better?
-
-`Find` and `QueryAll` both do the same things, searches all of matched html nodes.
-The `Find` will panics if you give an error XPath query, but `QueryAll` will return an error for you.
-
-#### Can I save my query expression object for the next query?
-
-Yes, you can. We offer the `QuerySelector` and `QuerySelectorAll` methods, It will accept your query expression object.
-
-Cache a query expression object(or reused) will avoid re-compile XPath query expression, improve your query performance.
 
 List of supported XPath query packages
 ===
