@@ -25,7 +25,7 @@ func getQuery(expr string) (*xpath.Expr, error) {
 		return xpath.Compile(expr)
 	}
 	cacheOnce.Do(func() {
-		cache = lru.New(50)
+		cache = lru.New(SelectorCacheMaxEntries)
 	})
 	cacheMutex.RLock()
 	if v, ok := cache.Get(expr); ok {
