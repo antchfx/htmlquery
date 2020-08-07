@@ -60,15 +60,15 @@ list := htmlquery.Find(doc, "//a")
 #### Find all A elements that have `href` attribute.
 
 ```go
-list := range htmlquery.Find(doc, "//a[@href]")	
+list := htmlquery.Find(doc, "//a[@href]")	
 ```
 
 #### Find all A elements with `href` attribute and only return `href` value.
 
 ```go
-list := range htmlquery.Find(doc, "//a/@href")	
+list := htmlquery.Find(doc, "//a/@href")	
 for _ , n := range list{
-	fmt.Println(htmlquery.InnerText(n)) // output @href value without A element.
+	fmt.Println(htmlquery.SelectAttr(n, "href")) // output @href value
 }
 ```
 
@@ -76,6 +76,13 @@ for _ , n := range list{
 
 ```go
 a := htmlquery.FindOne(doc, "//a[3]")
+```
+
+### Find children element (img) under A `href` and print the source
+```go
+a := htmlquery.FindOne(doc, "//a")
+img := htmlquery.FindOne(a, "//img")
+fmt.Prinln(htmlquery.SelectAttr(img, "src")) // output @src value
 ```
 
 #### Evaluate the number of all IMG element.
