@@ -55,10 +55,10 @@ func QueryAll(top *html.Node, expr string) ([]*html.Node, error) {
 	return nodes, nil
 }
 
-// Query searches the html.Node that matches by the specified XPath expr,
-// and return the first element of matched html.Node.
+// Query runs the given XPath expression against the given html.Node and
+// returns the first matching html.Node, or nil if no matches are found.
 //
-// Return an error if the expression `expr` cannot be parsed.
+// Returns an error if the expression `expr` cannot be parsed.
 func Query(top *html.Node, expr string) (*html.Node, error) {
 	exp, err := getQuery(expr)
 	if err != nil {
