@@ -192,6 +192,21 @@ func ExistsAttr(n *html.Node, name string) bool {
 	return false
 }
 
+// Attr returns the attribute value with the specified name and whether attribute with specified name exists.
+func Attr(n *html.Node, name string) (val string, exists bool) {
+	if n == nil {
+		return
+	}
+	for _, attr := range n.Attr {
+		if attr.Key == name {
+			val, exists = attr.Val, true
+			break
+		}
+	}
+	return
+}
+
+
 // OutputHTML returns the text including tags name.
 func OutputHTML(n *html.Node, self bool) string {
 	var buf bytes.Buffer
