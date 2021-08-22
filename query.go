@@ -206,7 +206,6 @@ func Attr(n *html.Node, name string) (val string, exists bool) {
 	return
 }
 
-
 // OutputHTML returns the text including tags name.
 func OutputHTML(n *html.Node, self bool) string {
 	var buf bytes.Buffer
