@@ -12,6 +12,16 @@ Overview
 
 `htmlquery` built-in the query object caching feature based on [LRU](https://godoc.org/github.com/golang/groupcache/lru), this feature will caching the recently used XPATH query string. Enable query caching can avoid re-compile XPath expression each query. 
 
+You can visit this page to learn about the supported XPath(1.0/2.0) syntax. https://github.com/antchfx/xpath
+
+XPath query packages for Go
+===
+| Name                                              | Description                               |
+| ------------------------------------------------- | ----------------------------------------- |
+| [htmlquery](https://github.com/antchfx/htmlquery) | XPath query package for the HTML document |
+| [xmlquery](https://github.com/antchfx/xmlquery)   | XPath query package for the XML document  |
+| [jsonquery](https://github.com/antchfx/jsonquery) | XPath query package for the JSON document |
+
 Installation
 ====
 
@@ -94,6 +104,30 @@ fmt.Printf("total count is %f", v)
 ```
 
 
+Quick Starts
+===
+
+```go
+func main() {
+	doc, err := htmlquery.LoadURL("https://www.bing.com/search?q=golang")
+	if err != nil {
+		panic(err)
+	}
+	// Find all news item.
+	list, err := htmlquery.QueryAll(doc, "//ol/li")
+	if err != nil {
+		panic(err)
+	}
+	for i, n := range list {
+		a := htmlquery.FindOne(n, "//a")
+		if a != nil {
+		    fmt.Printf("%d %s(%s)\n", i, htmlquery.InnerText(a), htmlquery.SelectAttr(a, "href"))
+		}
+	}
+}
+```
+
+
 FAQ
 ====
 
@@ -123,52 +157,6 @@ BenchmarkDisableSelectorCache-4           500000              3162 ns/op
 ```
 htmlquery.DisableSelectorCache = true
 ```
-
-Changelogs
-===
-
-2019-11-19 
-- Add built-in query object cache feature, avoid re-compilation for the same query string. [#16](https://github.com/antchfx/htmlquery/issues/16)
-- Added LoadDoc [18](https://github.com/antchfx/htmlquery/pull/18)
-
-2019-10-05 
-- Add new methods that compatible with invalid XPath expression error: `QueryAll` and `Query`.
-- Add `QuerySelector` and `QuerySelectorAll` methods, supported reused your query object.
-
-2019-02-04
-- [#7](https://github.com/antchfx/htmlquery/issues/7) Removed deprecated `FindEach()` and `FindEachWithBreak()` methods.
-
-2018-12-28
-- Avoid adding duplicate elements to list for `Find()` method. [#6](https://github.com/antchfx/htmlquery/issues/6)
-
-Tutorial
-===
-
-```go
-func main() {
-	doc, err := htmlquery.LoadURL("https://www.bing.com/search?q=golang")
-	if err != nil {
-		panic(err)
-	}
-	// Find all news item.
-	list, err := htmlquery.QueryAll(doc, "//ol/li")
-	if err != nil {
-		panic(err)
-	}
-	for i, n := range list {
-		a := htmlquery.FindOne(n, "//a")
-		fmt.Printf("%d %s(%s)\n", i, htmlquery.InnerText(a), htmlquery.SelectAttr(a, "href"))
-	}
-}
-```
-
-List of supported XPath query packages
-===
-| Name                                              | Description                               |
-| ------------------------------------------------- | ----------------------------------------- |
-| [htmlquery](https://github.com/antchfx/htmlquery) | XPath query package for the HTML document |
-| [xmlquery](https://github.com/antchfx/xmlquery)   | XPath query package for the XML document  |
-| [jsonquery](https://github.com/antchfx/jsonquery) | XPath query package for the JSON document |
 
 Questions
 ===
