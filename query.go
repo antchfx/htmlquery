@@ -83,11 +83,6 @@ func QuerySelectorAll(top *html.Node, selector *xpath.Expr) []*html.Node {
 	for t.MoveNext() {
 		nav := t.Current().(*NodeNavigator)
 		n := getCurrentNode(nav)
-		// avoid adding duplicate nodes.
-		if len(elems) > 0 && (elems[0] == n || (nav.NodeType() == xpath.AttributeNode &&
-			nav.LocalName() == elems[0].Data && nav.Value() == InnerText(elems[0]))) {
-			continue
-		}
 		elems = append(elems, n)
 	}
 	return elems
