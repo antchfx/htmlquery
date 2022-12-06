@@ -69,7 +69,7 @@ func TestSelectorCache(t *testing.T) {
 
 func TestLoadURL(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, htmlSample)
+		fmt.Fprint(w, htmlSample)
 	}))
 	defer ts.Close()
 
