@@ -69,7 +69,7 @@ func TestSelectorCache(t *testing.T) {
 
 func TestLoadURL(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, htmlSample)
+		fmt.Fprint(w, htmlSample)
 	}))
 	defer ts.Close()
 
@@ -136,7 +136,7 @@ func TestXPath(t *testing.T) {
 	if strings.Index(InnerText(node), "Logo") > 0 {
 		t.Fatal("InnerText() have comment node text")
 	}
-	if strings.Index(OutputHTML(node, true), "Logo") == -1 {
+	if !strings.Contains(OutputHTML(node, true), "Logo") {
 		t.Fatal("OutputHTML() shoud have comment node text")
 	}
 	link := FindOne(testDoc, "//a[1]/@href")
