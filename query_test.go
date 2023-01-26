@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/antchfx/xpath"
@@ -156,6 +157,22 @@ func TestXPathCdUp(t *testing.T) {
 	if node == nil || node.Data != "b" {
 		t.Fatal("//b/@id/.. != <b></b>")
 	}
+}
+
+func TestConcurrentQuery(t *testing.T) {
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			s := `<html><head></head><body><div>a</div></body>`
+			doc := loadHTML(s)
+			if n := FindOne(doc, `//div`); n == nil {
+				t.Fatalf("should find one but got nil [%d]", i)
+			}
+		}(i)
+	}
+	wg.Done()
 }
 
 func loadHTML(str string) *html.Node {
