@@ -80,6 +80,35 @@ func TestLoadURL(t *testing.T) {
 	}
 }
 
+func TestLoadRequest(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, htmlSample)
+	}))
+	defer ts.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
+
+	_, err := LoadRequest(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadHttpResponse(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, htmlSample)
+	}))
+	defer ts.Close()
+
+	request, _ := http.NewRequest(http.MethodGet, ts.URL, nil)
+	response, _ := http.DefaultClient.Do(request)
+
+	_, err := LoadHttpResponse(response)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestLoadDoc(t *testing.T) {
 	tempHTMLdoc, err := ioutil.TempFile("", "sample_*.html")
 	if err != nil {

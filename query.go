@@ -91,6 +91,21 @@ func QuerySelectorAll(top *html.Node, selector *xpath.Expr) []*html.Node {
 // LoadURL loads the HTML document from the specified URL.
 func LoadURL(url string) (*html.Node, error) {
 	resp, err := http.Get(url)
+	return handleHttpResponse(resp, err)
+}
+
+// LoadURL loads the HTML document from the specified Request.
+func LoadRequest(request *http.Request) (*html.Node, error) {
+	resp, err := http.DefaultClient.Do(request)
+	return handleHttpResponse(resp, err)
+}
+
+// LoadHttpResponse loads the HTML document from the specified *http.Response.
+func LoadHttpResponse(resp *http.Response) (*html.Node, error) {
+	return handleHttpResponse(resp, nil)
+}
+
+func handleHttpResponse(resp *http.Response, err error) (*html.Node, error) {
 	if err != nil {
 		return nil, err
 	}
