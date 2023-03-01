@@ -1,6 +1,7 @@
 package htmlquery
 
 import (
+	"compress/gzip"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -71,6 +72,21 @@ func TestSelectorCache(t *testing.T) {
 func TestLoadURL(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, htmlSample)
+	}))
+	defer ts.Close()
+
+	_, err := LoadURL(ts.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadURLWithGzipResponse(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Encoding", "gzip")
+		gz := gzip.NewWriter(w)
+		defer gz.Close()
+		fmt.Fprint(gz, htmlSample)
 	}))
 	defer ts.Close()
 
