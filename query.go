@@ -109,8 +109,8 @@ func LoadURL(url string) (*html.Node, error) {
 			reader.Close()
 		}
 	}()
-
-	switch resp.Header.Get("Content-Encoding") {
+	encoding := resp.Header.Get("Content-Encoding")
+	switch encoding {
 	case "gzip":
 		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
@@ -121,8 +121,10 @@ func LoadURL(url string) (*html.Node, error) {
 		if err != nil {
 			return nil, err
 		}
-	default:
+	case "":
 		reader = resp.Body
+	default:
+		return nil, fmt.Errorf("%s compression is not support", encoding)
 	}
 
 	r, err := charset.NewReader(reader, resp.Header.Get("Content-Type"))
