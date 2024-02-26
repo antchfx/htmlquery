@@ -19,6 +19,9 @@ import (
 )
 
 var _ xpath.NodeNavigator = &NodeNavigator{}
+var (
+	cilent *http.Client = http.DefaultClient
+)
 
 // CreateXPathNavigator creates a new xpath.NodeNavigator for the specified html.Node.
 func CreateXPathNavigator(top *html.Node) *NodeNavigator {
@@ -90,18 +93,14 @@ func QuerySelectorAll(top *html.Node, selector *xpath.Expr) []*html.Node {
 	return elems
 }
 
-// LoadURL loads the HTML document from the specified URL. Default enabling gzip on a HTTP request.
-func LoadURL(url string) (*html.Node, error) {
-	req, err := http.NewRequest("GET", url, nil)
+// LoadRequestWithCilent loads the document from the specified http request with specified http cilent.
+// Default enabling gzip on a HTTP request.
+func LoadRequestWithCilent(req *http.Request, c *http.Client) (*html.Node, error) {
+	resp, err := cilent.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	// Enable gzip compression.
-	req.Header.Add("Accept-Encoding", "gzip")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
+
 	var reader io.ReadCloser
 
 	defer func() {
@@ -132,6 +131,23 @@ func LoadURL(url string) (*html.Node, error) {
 		return nil, err
 	}
 	return html.Parse(r)
+}
+
+// LoadUrlWithCilent loads the document from the specified URL with specified http cilent.
+// Default enabling gzip on a HTTP request.
+func LoadUrlWithCilent(url string, c *http.Client) (*html.Node, error) {
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Enable gzip compression.
+	req.Header.Add("Accept-Encoding", "gzip")
+	return LoadRequestWithCilent(req, cilent)
+}
+
+// LoadURL loads the HTML document from the specified URL. Default enabling gzip on a HTTP request.
+func LoadURL(url string) (*html.Node, error) {
+	return LoadUrlWithCilent(url, cilent)
 }
 
 // LoadDoc loads the HTML document from the specified file path.
