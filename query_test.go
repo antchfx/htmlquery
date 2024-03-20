@@ -188,7 +188,7 @@ func TestConcurrentQuery(t *testing.T) {
 			}
 		}(i)
 	}
-	wg.Done()
+	wg.Wait()
 }
 
 func loadHTML(str string) *html.Node {
