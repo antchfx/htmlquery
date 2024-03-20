@@ -74,7 +74,7 @@ list := htmlquery.Find(doc, "//a[@href]")
 ```go
 list := htmlquery.Find(doc, "//a/@href")
 for _ , n := range list{
-	fmt.Println(htmlquery.SelectAttr(n, "href")) // output @href value
+	fmt.Println(htmlquery.InnerText(n)) // output @href value
 }
 ```
 
