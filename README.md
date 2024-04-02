@@ -1,36 +1,32 @@
-htmlquery
-====
-[![Build Status](https://travis-ci.org/antchfx/htmlquery.svg?branch=master)](https://travis-ci.org/antchfx/htmlquery)
-[![Coverage Status](https://coveralls.io/repos/github/antchfx/htmlquery/badge.svg?branch=master)](https://coveralls.io/github/antchfx/htmlquery?branch=master)
+# htmlquery
+
+[![Build Status](https://github.com/antchfx/htmlquery/actions/workflows/testing.yml/badge.svg)](https://github.com/antchfx/htmlquery/actions/workflows/testing.yml)
 [![GoDoc](https://godoc.org/github.com/antchfx/htmlquery?status.svg)](https://godoc.org/github.com/antchfx/htmlquery)
 [![Go Report Card](https://goreportcard.com/badge/github.com/antchfx/htmlquery)](https://goreportcard.com/report/github.com/antchfx/htmlquery)
 
-Overview
-====
+# Overview
 
 `htmlquery` is an XPath query package for HTML, lets you extract data or evaluate from HTML documents by an XPath expression.
 
-`htmlquery` built-in the query object caching feature based on [LRU](https://godoc.org/github.com/golang/groupcache/lru), this feature will caching the recently used XPATH query string. Enable query caching can avoid re-compile XPath expression each query. 
+`htmlquery` built-in the query object caching feature based on [LRU](https://godoc.org/github.com/golang/groupcache/lru), this feature will caching the recently used XPATH query string. Enable query caching can avoid re-compile XPath expression each query.
 
 You can visit this page to learn about the supported XPath(1.0/2.0) syntax. https://github.com/antchfx/xpath
 
-XPath query packages for Go
-===
+# XPath query packages for Go
+
 | Name                                              | Description                               |
 | ------------------------------------------------- | ----------------------------------------- |
 | [htmlquery](https://github.com/antchfx/htmlquery) | XPath query package for the HTML document |
 | [xmlquery](https://github.com/antchfx/xmlquery)   | XPath query package for the XML document  |
 | [jsonquery](https://github.com/antchfx/jsonquery) | XPath query package for the JSON document |
 
-Installation
-====
+# Installation
 
 ```
 go get github.com/antchfx/htmlquery
 ```
 
-Getting Started
-====
+# Getting Started
 
 #### Query, returns matched elements or error.
 
@@ -70,15 +66,15 @@ list := htmlquery.Find(doc, "//a")
 #### Find all A elements that have `href` attribute.
 
 ```go
-list := htmlquery.Find(doc, "//a[@href]")	
+list := htmlquery.Find(doc, "//a[@href]")
 ```
 
 #### Find all A elements with `href` attribute and only return `href` value.
 
 ```go
-list := htmlquery.Find(doc, "//a/@href")	
+list := htmlquery.Find(doc, "//a/@href")
 for _ , n := range list{
-	fmt.Println(htmlquery.SelectAttr(n, "href")) // output @href value
+	fmt.Println(htmlquery.InnerText(n)) // output @href value
 }
 ```
 
@@ -89,6 +85,7 @@ a := htmlquery.FindOne(doc, "//a[3]")
 ```
 
 ### Find children element (img) under A `href` and print the source
+
 ```go
 a := htmlquery.FindOne(doc, "//a")
 img := htmlquery.FindOne(a, "//img")
@@ -103,9 +100,7 @@ v := expr.Evaluate(htmlquery.CreateXPathNavigator(doc)).(float64)
 fmt.Printf("total count is %f", v)
 ```
 
-
-Quick Starts
-===
+# Quick Starts
 
 ```go
 func main() {
@@ -127,9 +122,7 @@ func main() {
 }
 ```
 
-
-FAQ
-====
+# FAQ
 
 #### `Find()` vs `QueryAll()`, which is better?
 
@@ -158,6 +151,6 @@ BenchmarkDisableSelectorCache-4           500000              3162 ns/op
 htmlquery.DisableSelectorCache = true
 ```
 
-Questions
-===
+# Questions
+
 Please let me know if you have any questions.
