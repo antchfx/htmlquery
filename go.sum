@@ -1,5 +1,5 @@
-github.com/antchfx/xpath v1.3.0 h1:nTMlzGAK3IJ0bPpME2urTuFL76o4A96iYvoKFHRXJgc=
-github.com/antchfx/xpath v1.3.0/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
+github.com/antchfx/xpath v1.3.1 h1:PNbFuUqHwWl0xRjvUPjJ95Agbmdj2uzzIwmQKgu4oCk=
+github.com/antchfx/xpath v1.3.1/go.mod h1:i54GszH55fYfBmoZXapTHN8T8tkcHfRgLyVwwqzXNcs=
 github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da h1:oI5xCqsCo564l8iNU+DwB5epxmsaqB+rhGL0m5jtYqE=
 github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
