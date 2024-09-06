@@ -49,7 +49,7 @@ func FindOne(top *html.Node, expr string) *html.Node {
 // QueryAll searches the html.Node that matches by the specified XPath expr.
 // Return an error if the expression `expr` cannot be parsed.
 func QueryAll(top *html.Node, expr string) ([]*html.Node, error) {
-	exp, err := getQuery(expr)
+	exp, err := xpcache.GetQuery(expr)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func QueryAll(top *html.Node, expr string) ([]*html.Node, error) {
 //
 // Returns an error if the expression `expr` cannot be parsed.
 func Query(top *html.Node, expr string) (*html.Node, error) {
-	exp, err := getQuery(expr)
+	exp, err := xpcache.GetQuery(expr)
 	if err != nil {
 		return nil, err
 	}
