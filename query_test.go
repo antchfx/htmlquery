@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/antchfx/xpath"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/net/html"
 )
 
@@ -189,6 +190,57 @@ func TestConcurrentQuery(t *testing.T) {
 		}(i)
 	}
 	wg.Wait()
+}
+
+func TestLoadURL_ErrorCases(t *testing.T) {
+	tests := []struct {
+		name            string
+		contentEncoding string
+		responseBody    []byte
+		expectedError   string
+	}{
+		{
+			name:            "ZlibReaderError",
+			contentEncoding: "deflate",
+			responseBody:    []byte("invalid zlib data"),
+			expectedError:   "zlib",
+		},
+		{
+			name:            "EmptyContentEncodingNilBody",
+			contentEncoding: "",
+			responseBody:    nil,
+			expectedError:   "EOF",
+		},
+		{
+			name:            "GzipReaderError",
+			contentEncoding: "gzip",
+			responseBody:    []byte("invalid gzip data"),
+			expectedError:   "gzip",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a local HTTP server
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Encoding", tt.contentEncoding)
+				w.WriteHeader(http.StatusOK)
+				w.Write(tt.responseBody)
+			}))
+			defer server.Close()
+
+			node, err := LoadURL(server.URL)
+
+			// Assert that the returned node is nil
+			require.Nil(t, node)
+
+			// Assert that an error is returned
+			require.NotNil(t, err)
+
+			// Optionally, check the error message
+			require.Contains(t, err.Error(), tt.expectedError)
+		})
+	}
 }
 
 func loadHTML(str string) *html.Node {
