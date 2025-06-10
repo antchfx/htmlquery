@@ -112,15 +112,17 @@ func LoadURL(url string) (*html.Node, error) {
 	encoding := resp.Header.Get("Content-Encoding")
 	switch encoding {
 	case "gzip":
-		reader, err = gzip.NewReader(resp.Body)
+		gzipReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
 			return nil, err
 		}
+		reader = gzipReader
 	case "deflate":
-		reader, err = zlib.NewReader(resp.Body)
+		zlibReader, err := zlib.NewReader(resp.Body)
 		if err != nil {
 			return nil, err
 		}
+		reader = zlibReader
 	case "":
 		reader = resp.Body
 	default:
