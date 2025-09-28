@@ -12,7 +12,6 @@ import (
 	"testing"
 
 	"github.com/antchfx/xpath"
-	"github.com/stretchr/testify/require"
 	"golang.org/x/net/html"
 )
 
@@ -232,13 +231,16 @@ func TestLoadURL_ErrorCases(t *testing.T) {
 			node, err := LoadURL(server.URL)
 
 			// Assert that the returned node is nil
-			require.Nil(t, node)
+			if node != nil {
+				t.Errorf("Expected node to be nil, but got %v", node)
+			}
 
 			// Assert that an error is returned
-			require.NotNil(t, err)
-
-			// Optionally, check the error message
-			require.Contains(t, err.Error(), tt.expectedError)
+			if err == nil {
+				t.Error("Expected an error, but got nil")
+			} else if !strings.Contains(err.Error(), tt.expectedError) {
+				t.Errorf("Expected error to contain '%s', but got: %v", tt.expectedError, err)
+			}
 		})
 	}
 }
