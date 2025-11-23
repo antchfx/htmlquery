@@ -3,16 +3,17 @@ package htmlquery
 import (
 	"compress/gzip"
 	"fmt"
+	"github.com/antchfx/xpath"
+	"golang.org/x/net/html"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"sync"
 	"testing"
-
-	"github.com/antchfx/xpath"
-	"golang.org/x/net/html"
+	"time"
 )
 
 const htmlSample = `<!DOCTYPE html><html lang="en-US">
@@ -251,4 +252,26 @@ func loadHTML(str string) *html.Node {
 		panic(err)
 	}
 	return node
+}
+
+func TestLoadURL_Proxy(t *testing.T) {
+	proxy, err := url.Parse("https://116.106.1.171:4002")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := LoadURL("https://ip.smartproxy.com/json", proxy, 30*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	output := OutputHTML(doc, true)
+	t.Log(output)
+}
+
+func TestLoadURL_Timeout(t *testing.T) {
+	node, err := LoadURL("https://ip.smartproxy.com/json", 5*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	output := OutputHTML(node, true)
+	t.Log(output)
 }
