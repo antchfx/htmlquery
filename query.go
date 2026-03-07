@@ -10,8 +10,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	nurl "net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
@@ -91,19 +93,42 @@ func QuerySelectorAll(top *html.Node, selector *xpath.Expr) []*html.Node {
 }
 
 // LoadURL loads the HTML document from the specified URL. Default enabling gzip on a HTTP request.
-func LoadURL(url string) (*html.Node, error) {
+func LoadURL(params ...interface{}) (*html.Node, error) {
+	var (
+		url       string
+		proxy     *nurl.URL
+		timeout   = 10 * time.Second
+		transport = &http.Transport{}
+	)
+	for _, param := range params {
+		switch v := param.(type) {
+		case string:
+			url = v
+		case *nurl.URL:
+			proxy = v
+		case time.Duration:
+			timeout = v
+		}
+
+	}
+	if proxy != nil {
+		transport.Proxy = http.ProxyURL(proxy)
+	}
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   timeout,
+	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 	// Enable gzip compression.
 	req.Header.Add("Accept-Encoding", "gzip")
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	var reader io.ReadCloser
-
 	defer func() {
 		if reader != nil {
 			reader.Close()
