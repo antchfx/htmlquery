@@ -97,12 +97,12 @@ func LoadURL(url string) (*html.Node, error) {
 
 // LoadURLWithCustomClient loads the HTML document from the specified URL. Default enabling gzip on a HTTP request.
 // Custom HTTP Client.
-func LoadURLWithClient(url string, client *http.Client)(*html.Node, error){
+func LoadURLWithClient(url string, client *http.Client) (*html.Node, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	if client == nil{
+	if client == nil {
 		client = http.DefaultClient
 	}
 	// Enable gzip compression.
@@ -111,13 +111,8 @@ func LoadURLWithClient(url string, client *http.Client)(*html.Node, error){
 	if err != nil {
 		return nil, err
 	}
-	var reader io.ReadCloser
-
-	defer func() {
-		if reader != nil {
-			reader.Close()
-		}
-	}()
+	defer resp.Body.Close()
+	var reader io.Reader
 	encoding := resp.Header.Get("Content-Encoding")
 	switch encoding {
 	case "gzip":
@@ -125,12 +120,14 @@ func LoadURLWithClient(url string, client *http.Client)(*html.Node, error){
 		if err != nil {
 			return nil, err
 		}
+		defer gzipReader.Close()
 		reader = gzipReader
 	case "deflate":
 		zlibReader, err := zlib.NewReader(resp.Body)
 		if err != nil {
 			return nil, err
 		}
+		defer zlibReader.Close()
 		reader = zlibReader
 	case "":
 		reader = resp.Body
