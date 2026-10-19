@@ -61,6 +61,25 @@ func BenchmarkDisableSelectorCache(b *testing.B) {
 	}
 }
 
+func TestMoveToRootFromAttribute(t *testing.T) {
+	doc, err := Parse(strings.NewReader(`<div id="example"><span></span></div>`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	iter := xpath.MustCompile("//div/@id").Select(CreateXPathNavigator(doc))
+	if !iter.MoveNext() {
+		t.Fatal("attribute not found")
+	}
+	nav := iter.Current().Copy()
+	nav.MoveToRoot()
+	if !nav.MoveToChild() {
+		t.Fatal("root still has an attribute cursor and cannot move to its child")
+	}
+	if nav.NodeType() != xpath.ElementNode || nav.LocalName() != "html" {
+		t.Fatalf("unexpected child after root navigation: %v", nav)
+	}
+}
+
 func TestSelectorCache(t *testing.T) {
 	SelectorCacheMaxEntries = 2
 	for i := 1; i <= 3; i++ {
@@ -76,7 +95,7 @@ func TestLoadURLWithClient(t *testing.T) {
 	}))
 	defer ts.Close()
 	cases := []struct {
-		Name string
+		Name   string
 		Client *http.Client
 	}{
 		{Name: "Client nil", Client: nil},
