@@ -290,6 +290,8 @@ func (h *NodeNavigator) Value() string {
 		return InnerText(h.curr)
 	case html.TextNode:
 		return h.curr.Data
+	case html.DocumentNode:
+		return InnerText(h.curr)
 	}
 	return ""
 }
