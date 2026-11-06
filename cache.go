@@ -1,42 +1,81 @@
 package htmlquery
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/antchfx/xpath"
 	"github.com/golang/groupcache/lru"
 )
 
-// DisableSelectorCache will disable caching for the query selector if value is true.
-var DisableSelectorCache = false
-
-// SelectorCacheMaxEntries allows how many selector object can be caching. Default is 50.
-// Will disable caching if SelectorCacheMaxEntries <= 0.
-var SelectorCacheMaxEntries = 50
+type XpathQueryLookup interface {
+	GetQuery(expr string) (*xpath.Expr, error)
+}
 
 var (
-	cacheOnce  sync.Once
-	cache      *lru.Cache
-	cacheMutex sync.Mutex
+	// DisableSelectorCache will disable caching for the query selector if value is true.
+	DisableSelectorCache = false
+
+	// SelectorCacheMaxEntries allows how many selector object can be caching. Default is 50.
+	// Will disable caching if SelectorCacheMaxEntries <= 0.
+	SelectorCacheMaxEntries = 50
 )
 
-func getQuery(expr string) (*xpath.Expr, error) {
-	if DisableSelectorCache || SelectorCacheMaxEntries <= 0 {
+var (
+	xpcache XpathQueryLookup
+)
+
+// max allows how many selector object can be caching. Default is 50.
+// Will disable caching if max <= 0.
+func NewXpathQueryLookup(max int) XpathQueryLookup {
+	if max == 0 {
+		return &nocacheXpathQueryLookup{}
+	}
+	return &lruXpathQueryLookup{
+		cache: lru.New(max),
+	}
+}
+
+type lruXpathQueryLookup struct {
+	cache      *lru.Cache
+	cacheMutex sync.Mutex
+}
+
+func (lxpl *lruXpathQueryLookup) GetQuery(expr string) (*xpath.Expr, error) {
+	if lxpl.cache == nil || DisableSelectorCache {
 		return xpath.Compile(expr)
 	}
-	cacheOnce.Do(func() {
-		cache = lru.New(SelectorCacheMaxEntries)
-	})
-	cacheMutex.Lock()
-	defer cacheMutex.Unlock()
-	if v, ok := cache.Get(expr); ok {
-		return v.(*xpath.Expr), nil
+
+	lxpl.cacheMutex.Lock()
+	defer lxpl.cacheMutex.Unlock()
+	if v, ok := lxpl.cache.Get(expr); ok {
+		e, ok := v.(*xpath.Expr)
+		if !ok {
+			return nil, errors.New("type asserion failed")
+		}
+		return e, nil
 	}
+
 	v, err := xpath.Compile(expr)
 	if err != nil {
 		return nil, err
 	}
-	cache.Add(expr, v)
+	lxpl.cache.Add(expr, v)
 	return v, nil
 
+}
+
+type nocacheXpathQueryLookup struct{}
+
+func (*nocacheXpathQueryLookup) GetQuery(expr string) (*xpath.Expr, error) {
+	return xpath.Compile(expr)
+}
+
+func SetCache(x XpathQueryLookup) {
+	xpcache = NewXpathQueryLookup(SelectorCacheMaxEntries)
+
+}
+
+func init() {
+	SetCache(NewXpathQueryLookup(SelectorCacheMaxEntries))
 }

@@ -50,14 +50,14 @@ var testDoc = loadHTML(htmlSample)
 func BenchmarkSelectorCache(b *testing.B) {
 	DisableSelectorCache = false
 	for i := 0; i < b.N; i++ {
-		getQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
+		xpcache.GetQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
 	}
 }
 
 func BenchmarkDisableSelectorCache(b *testing.B) {
 	DisableSelectorCache = true
 	for i := 0; i < b.N; i++ {
-		getQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
+		xpcache.GetQuery("/AAA/BBB/DDD/CCC/EEE/ancestor::*")
 	}
 }
 
@@ -81,11 +81,12 @@ func TestMoveToRootFromAttribute(t *testing.T) {
 }
 
 func TestSelectorCache(t *testing.T) {
+	xpcache = NewXpathQueryLookup(2)
 	SelectorCacheMaxEntries = 2
 	for i := 1; i <= 3; i++ {
-		getQuery(fmt.Sprintf("//a[position()=%d]", i))
+		xpcache.GetQuery(fmt.Sprintf("//a[position()=%d]", i))
 	}
-	getQuery("//a[position()=3]")
+	xpcache.GetQuery("//a[position()=3]")
 
 }
 
