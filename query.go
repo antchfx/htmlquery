@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"unsafe"
 
 	"github.com/antchfx/xpath"
 	"golang.org/x/net/html"
@@ -319,6 +320,8 @@ func (h *NodeNavigator) MoveToParent() bool {
 
 func (h *NodeNavigator) MoveToNextAttribute() bool {
 	if h.attr >= len(h.curr.Attr)-1 {
+		// Reset ??
+		h.attr = -1
 		return false
 	}
 	h.attr++
@@ -327,6 +330,7 @@ func (h *NodeNavigator) MoveToNextAttribute() bool {
 
 func (h *NodeNavigator) MoveToChild() bool {
 	if h.attr != -1 {
+		h.attr = -1
 		return false
 	}
 	if node := h.curr.FirstChild; node != nil {
@@ -337,7 +341,10 @@ func (h *NodeNavigator) MoveToChild() bool {
 }
 
 func (h *NodeNavigator) MoveToFirst() bool {
-	if h.attr != -1 || h.curr.PrevSibling == nil {
+	if h.attr != -1 {
+		h.attr = -1
+		return false
+	} else if h.curr.PrevSibling == nil {
 		return false
 	}
 	for {
@@ -356,6 +363,7 @@ func (h *NodeNavigator) String() string {
 
 func (h *NodeNavigator) MoveToNext() bool {
 	if h.attr != -1 {
+		h.attr = -1
 		return false
 	}
 	if node := h.curr.NextSibling; node != nil {
@@ -367,6 +375,7 @@ func (h *NodeNavigator) MoveToNext() bool {
 
 func (h *NodeNavigator) MoveToPrevious() bool {
 	if h.attr != -1 {
+		h.attr = -1
 		return false
 	}
 	if node := h.curr.PrevSibling; node != nil {
@@ -385,4 +394,11 @@ func (h *NodeNavigator) MoveTo(other xpath.NodeNavigator) bool {
 	h.curr = node.curr
 	h.attr = node.attr
 	return true
+}
+
+func (h *NodeNavigator) Identity() uint64 {
+	if h.attr != -1 {
+		return uint64(uintptr(unsafe.Pointer(&h.curr.Attr[h.attr])))
+	}
+	return uint64(uintptr(unsafe.Pointer(h.curr)))
 }
